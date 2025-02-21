@@ -1,0 +1,46 @@
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.freehand-regular {
+  font-family: "Freehand", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+.amita-regular {
+  font-family: "Amita", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.amita-bold {
+  font-family: "Amita", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+.footer {
+  margin-top: 60px;
+  padding-bottom: 80px;
+  width: 100%;
+  background-color: #171830;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  position: fixed;
+  bottom: 90px;
+}
+.product-details-page { 
+ overflow-y: hidden; 
+ }
+ .user-image-page {
+  height: 100vh;
+  overflow-y: hidden;
+} 
+@media (max-width: 768px) {
+  .container {
+    font-size: 14px;
+  }
+}

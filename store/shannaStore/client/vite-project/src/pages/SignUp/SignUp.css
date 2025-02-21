@@ -1,0 +1,30 @@
+body {
+
+  height: 100vh;
+}
+
+.signup-h2 {
+  background-color: blue;
+  height: 120px;
+  margin-top: 125px;
+ 
+}
+.form-control {
+  margin-bottom: 20px;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  
+}
+.form-control input{
+  width: 250px;
+  justify-content: center;
+  align-items: center;
+display: flex;
+text-align: center;
+  padding: 10px;
+  border: 2px solid black;
+
+}

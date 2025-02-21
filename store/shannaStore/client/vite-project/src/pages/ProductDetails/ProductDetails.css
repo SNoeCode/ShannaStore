@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow-x: hidden;
+  font-family: Montserrat, sans-serif;
+}
+
+.details-back-btn button {
+  position: absolute;
+  width: 65px;
+  display: flex;
+  align-items: center;
+}
+
+button:hover {
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+.container-details {
+  height: 80vh;
+  margin-top: 100px;
+
+}

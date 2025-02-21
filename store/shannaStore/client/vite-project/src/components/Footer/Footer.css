@@ -1,0 +1,44 @@
+body {
+  padding: 0;
+  margin: 0;
+  
+  box-sizing: border-box;
+}
+.footer-container {
+  position: static;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  background-color: #171830;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+  max-height: 80px;
+}
+
+.social-icons {
+  margin: auto 0px;
+  margin-top: -10px;
+}
+
+.social-icons a {
+  color: #fff;
+  margin: 0 10px;
+  font-size: 24px;
+  transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+  color: cornflowerblue;
+}
+
+.footer-container p {
+  margin: 0;
+  font-size: 14px;
+}
