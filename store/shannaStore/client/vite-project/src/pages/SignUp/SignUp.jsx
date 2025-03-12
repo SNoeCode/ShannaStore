@@ -6,30 +6,35 @@ import "./SignUp.css";
 const Signup = () => {
   const [users, setUsers] = useState([]);
   const [data, setData] = useState({});
-  const [name, setName] = useState("");
-  const [cartItems, setCartItems] = useState([]);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+ 
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  });
   const navigate = useNavigate();
-
   const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    console.log("reg", formData);
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-  const handleSignup = async (e) => {
+ 
+  const handleSignup = (e) => {
     e.preventDefault();
-  
-  axios.post("http://localhost:3004/api/signup", { name, email, username, password, cartItems })
- .then((response) => {
-   localStorage.setItem("_id", response.data.user.id);
-   localStorage.setItem("token", response.data.token);
-   navigate("/login");
-   alert("User registered successfully");
-   console.log("SignUp response:", response);
- })
- .catch((err) => console.error("Unable to sign up:", err));
 
-}
+    axios
+      .post("http://localhost:3004/api/signup", formData)
+      .then((response) => {
+        console.log(response);
+        setData(response.data);
+      
+        alert("User registered successfully");
+        console.log("SignUp response:", response);
+
+        navigate("/login");
+      })
+      .catch((err) => console.error("Unable to sign up:", err));
+  };
   return (
     <>
       <div className="signup-container">
@@ -43,11 +48,9 @@ const Signup = () => {
                 placeholder="Name"
                 type="text"
                 id="name"
-                value={name}
-                name={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
+              
+                value={formData.name}
+                onChange={(e) => handleChange(e)}
                 required
               />
             </label>
@@ -57,11 +60,9 @@ const Signup = () => {
                 placeholder="Create Username"
                 type="text"
                 id="username"
-                name="username"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
+              
+                value={formData.username}
+                onChange={(e) => handleChange(e)}
                 required
               />
             </label>
@@ -71,11 +72,9 @@ const Signup = () => {
                 placeholder="email"
                 type="email"
                 id="email"
-                name="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
+               
+                value={formData.email}
+                onChange={(e) => handleChange(e)}
                 required
               />
             </label>
@@ -85,15 +84,15 @@ const Signup = () => {
                 placeholder="password"
                 type="password"
                 id="password"
-                name="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
+              
+                value={formData.password}
+                onChange={(e) => handleChange(e)}
                 required
               />
             </label>
-            <button type="submit">Submit</button>
+            <button type="submit" onClick={(e) => handleSignup(e)}>
+              Submit
+            </button>
           </form>
           <br />
         </div>
@@ -109,4 +108,3 @@ const Signup = () => {
 
 export default Signup;
 
- 

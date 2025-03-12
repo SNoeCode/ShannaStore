@@ -17,8 +17,8 @@ const Category = () => {
   const [currentProduct, setCurrentProduct] = useState(null);
   const { category } = useParams(); 
    const { addItem } = useContext(CartContext);
-   const handleAddToCart = (product) => {
-    addItem(product);
+   const handleAddToCart = () => {
+    addItem(currentProduct);
   };
   const navigate = useNavigate();
   useEffect(() => {
@@ -161,7 +161,9 @@ const Category = () => {
                 </div>
                 <div className="category-button-container-wishlist">
                   <span className="wishlist">
-                    <button className="category-add-to-wishlist-button" onClick={navigate('/wishlist')}>
+                     <button className="category-add-to-wishlist-button" >
+                    
+                    {/* // onClick={navigate('/wishlist')} */}
                       <i class="fas fa-heart" style={{ color: "#7f072f" }}></i>
                       Add to Wishlist
                     </button>

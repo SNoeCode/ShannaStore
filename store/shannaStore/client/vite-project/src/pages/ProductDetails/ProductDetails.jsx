@@ -12,27 +12,26 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { RemoveScrollBar } from "react-remove-scroll-bar";
 import backgroundImage from "../../Image/black-white.png";
-
 const ProductDetails = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const { id } = useParams();
+  // const {addItem} = useContext(CartContext)
  
 
  
   useEffect(() => {
+    const response = 
     axios.get(`https://fakestoreapi.com/products/${id}`)
-      .then((response) => {
+      // .then((response) => {
+      // setProduct(response.data)
       
-        if (!response.data) {
-          throw new Error("Empty response body");
-        }
-        return response.data; 
+      //   return response.data; 
+      // })
+      .then((response) => {
+        setProduct(response.data);
       })
-      .then((data) => {
-        setProduct(data);
-      })
-      .catch((error) => {
+       .catch((error) => {
         console.error("Error fetching product:", error);
       });
   }, [id]);
@@ -43,7 +42,7 @@ const ProductDetails = () => {
     navigate("/");
   };
   const { addItem } = useContext(CartContext);
-  const handleAddToCart = (product) => {
+  const handleAddToCart = () => {
     addItem(product);
   };
 
@@ -102,7 +101,7 @@ const ProductDetails = () => {
               <Button
                 sx={{ display: "flex" }}
                 size="small"
-                onClick={() => handleAddToCart(currentProduct)}
+                onClick={handleAddToCart}
               >
                 Add To cart
               </Button>

@@ -16,31 +16,37 @@ const Home = () => {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
   const [authedUser, setAuthedUser] = useState(null);
-  const { addItem, cartItems, dispatch,addToCart } = useContext(CartContext);
+  const { addItem, addToCart, cartItems, dispatch,saveCartToBackend, fetchCart } = useContext(CartContext);
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token"); // Or sessionStorage
-
-console.log("home token", token)
+ 
 
   useEffect(() => {
+  
     const userId = localStorage.getItem("userId");
     const username = localStorage.getItem("username");
-    
-    if (!localStorage.getItem("cartItems")) {
-      localStorage.setItem("cartItems", JSON.stringify([]));
-    }
-    const cartItemsString = localStorage.getItem("cartItems");
-      const cartItems = cartItemsString ? JSON.parse(cartItemsString) : [];
 
+    const storedData = localStorage.getItem("cartItems");
+let parsedData = [];
+try {
+  parsedData = storedData && storedData !== "undefined" ? JSON.parse(storedData) : [];
+} catch (error) {
+  console.error("Error parsing cartItems:", error);
+  parsedData = [];
+}
     if (userId && username) {
-      setAuthedUser({ userId: userId, username: username, cartItems: cartItems });
+      setAuthedUser({
+        userId: userId,
+        username: username,
+        cartItems: cartItems,
+      });
     }
+  
   }, []);
 
   useEffect(() => {
     getProducts()
       .then((res) => {
-        
         setProducts(res.data);
       })
       .catch((error) => {
@@ -48,39 +54,56 @@ console.log("home token", token)
       });
   }, []);
 
-  const handleAddToCart = (productId) => {
-    const token = localStorage.getItem("token");
 
+  const handleAddToCart = (product) => {
+    const token = localStorage.getItem("token");
     if (!token) {
+      alert("Please Login to add to cart")
       console.error("No token found. Please log in.");
       return;
     }
-
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("userId")    
     if (!userId) {
       console.error("No user ID found. Please log in.");
       return;
     }
-
-    const newItem = { productId, quantity: 1 };
-
-    axios.post(`http://localhost:3004/api/${userId}/addToCart`, newItem, { 
-        headers: { Authorization: `Bearer ${token}` }, 
-        withCredentials: true 
+  const id =  product.id
+  const productId = product.id.toString()
+    const newItem =  {  
+   cartItems: cartItems,
+      productId: Number(productId),
+      id: product.id,
+      title:product.title,
+      price: product.price,
+      description:
+       product.description,
+      category: product.category,
+      image: product.image,
+    
+  quantity: 1,
+    }
+ 
+  console.log("Request Data:", newItem);
+  
+    
+  const response =
+    axios.post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
+      headers: { Authorization: `Bearer ${token}`,"Content-Type": "application/json"},
+      withCredentials: true,
     })
-      .then(response => {
-        console.log("Successfully added to backend cart:", response.data);
-        addItem(productId); 
-        setIsAdded((prev) => ({ ...prev, [productId]: true }));
-
-        setTimeout(() => {
-          setIsAdded((prev) => ({ ...prev, [productId]: false }));
-        }, 3000);
-      })
-      .catch(error => {
-        console.error("Error adding to backend cart:", error.response?.data || error.message);
-      });
-  };
+    .then((response) => {
+      setData(response.data)
+      console.log("Successfully added to backend cart:", response.data);
+      console.log("response.data.product",response.data)
+      addItem(newItem);
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+     
+     
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }; 
 
   const navigateToNewPage = (id) => {
     console.log("Navigating to product details:", id);
@@ -94,7 +117,7 @@ console.log("home token", token)
         <p>Find the best products here</p>
       </div>
       <div className="container">
-        {products.map((product,index) => (
+        {products.map((product, index) => (
           <div key={product.id} className="card">
             <h1>
               <b>{product.title}</b>
@@ -124,22 +147,20 @@ console.log("home token", token)
                 />
               </Box>
               <button
-                onClick={() => navigateToNewPage(product._id)}
+                onClick={() => navigateToNewPage(product.id)}
                 className="button-1"
               >
                 More Details
               </button>
             </div>
             <button
-              id="add-to-cart"
-              className={`btn ${isAdded[product.id] ? "added" : ""}`}
-              onClick={(event) =>
-                handleAddToCart(product.id)
-              }
-            >
-              {isAdded[product._id || product.id] ? "Added" : "Add to cart"}
-            </button>
-          
+  id="add-to-cart" 
+  className={`btn ${isAdded[product.id] ? "added" : ""}`}
+  onClick={() => handleAddToCart((product.id, product))}
+>
+  {isAdded[product.id] ? "Added" : "Add to cart"}
+</button>
+
           </div>
         ))}
       </div>
@@ -148,5 +169,3 @@ console.log("home token", token)
 };
 
 export default Home;
-
-

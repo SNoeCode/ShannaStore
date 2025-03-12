@@ -4,9 +4,17 @@ body {
   
   box-sizing: border-box;
 }
+/* .footer {
+  position: absolute;
+
+
+} */
 .footer-container {
-  position: static;
+  /* position: static; */
+  /* position: relative; */
   bottom: 0;
+  position: absolute;
+
   width: 100%;
   left: 0;
   z-index: 1000;

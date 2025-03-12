@@ -1,56 +1,61 @@
-// UserContext.jsx
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 export const UserContext = createContext(null);
+
 export const UserProvider = ({ children }) => {
-  const [authedUser, setAuthedUser] = useState({
-    userId: null,
-    _id: null,
-    username: null,
-    token: null,
-  });
-  const [user, setUser] = useState(null);
+  const [authedUser, setAuthedUser] = useState(null);
+  const [updatedAuthedUser, setUpdatedAuthedUser] = useState(null);
+  const [cartItems, setCartItems] = useState([]);
 
-  const updateAuthedUser = (authedUser) => {
-    if (!authedUser) { 
-        setAuthedUser({
-             userId: null,
-             _id: null,
-             username: null,
-             token: null
-        });
-        localStorage.removeItem("token");
-        localStorage.setItem("userId", "");
-        localStorage.setItem("_id", "");
-        localStorage.setItem("username", "");
-        return; 
-    }
+useEffect(() => {
+  const userId = localStorage.getItem("userId") || null;
+  const _id = localStorage.getItem("_id") || null;
+  const username = localStorage.getItem("username") || null;
+  const token = localStorage.getItem("token") || null;
+const cartItems = localStorage.getItem('cartItems')
+  const updatedAuthedUser = {
+    userId,
+    _id,
+    username,
+    token,
+    cartItems
+  };
 
-    const updatedUser = {
-        userId: authedUser.userId || null,
-        _id: authedUser._id || authedUser.id || null,
-        username: authedUser.username || null,
-        token: authedUser.token || null,
-    };
+  setAuthedUser(updatedAuthedUser);
 
-    setAuthedUser(updatedUser);
-
-    if (updatedUser.token) {
-        localStorage.setItem("token", updatedUser.token);
-    } else {
-        localStorage.removeItem("token");
-    }
-
-    localStorage.setItem("userId", updatedUser.userId || "");
-    localStorage.setItem("_id", updatedUser._id || "");
-    localStorage.setItem("username", updatedUser.username || "");
+  if (updatedAuthedUser.token) {
+    localStorage.setItem("token", updatedAuthedUser.token);
+  } else {
+    localStorage.removeItem("token");
+  }
+  
+  localStorage.setItem("userId", updatedAuthedUser.userId || "");
+  localStorage.setItem("_id", updatedAuthedUser._id || "");
+  localStorage.setItem("username", updatedAuthedUser.username || "");
+  
+  // Load cart items from local storage
+  const savedCartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+  setCartItems(savedCartItems);
+}, []);
+return (
+  <UserContext.Provider value={{ authedUser, setAuthedUser, updatedAuthedUser }}>
+    {children}
+  </UserContext.Provider>
+);
 };
 
-  return (
-    <UserContext.Provider value={{ authedUser, updateAuthedUser }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,47 +1,62 @@
 const cartReducer = (state, action) => {
+
+  
   switch (action.type) {
     case "TOGGLE_CART":
       return {
         ...state,
         isCartOpen: !state.isCartOpen,
       };
+      case "SET_CART_ITEMS":
+        return {
+          ...state,
+          cartItems: action.payload,
+          loading: false,
+          error: null
+        };
+        case "UPDATE_CART_ITEM_QUANTITY":
+          return {
+            ...state,
+            cartItems: state.cartItems.map((item) => 
+              item.productId === action.payload.productId
+                ? { ...item, quantity: action.payload.quantity }
+                : item
+            ),
+             };
     case "UPDATE_CART":
+      console.log("Updating cart with items:", action.payload.cartItems); 
       return {
         ...state,
-        cartItems: action.payload.cartItems,
-      };
-    case "ADD_ITEM": {
-      const newCartItem = action.payload.product;
-      if (!newCartItem) {
-        console.error("Invalid product payload");
-        return state;
-      }
-
-      const existingItemIndex = state.cartItems.findIndex(
-        (product) => product.productId === newCartItem.productId
-      );
-
-      let updatedCartItems;
-      if (existingItemIndex !== -1) {
+        cartItems: action.payload.cartItems
       
-        updatedCartItems = state.cartItems.map((product, index) =>
-          index === existingItemIndex
-            ? { ...product, quantity: product.quantity + 1 }
-            : product
-        );
-      } else {
-   
-        updatedCartItems = [...state.cartItems, { ...newCartItem, quantity: 1 }];
-      }
-
-      localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-
-      return {
-        ...state,
-        cartItems: updatedCartItems,
       };
-    }
-
+    
+    case "ADD_ITEM":
+     
+      if (!state.cartItems) {
+        state.cartItems = [];
+      }
+      const existingItem = state.cartItems.findIndex(
+        (product) => product.productId === action.payload.productId
+      );
+      if (existingItem) {
+      
+        return {
+          ...state,
+          cartItems: state.cartItems.map((product) =>
+            product.productId === action.payload.productId
+              ? { ...product, quantity: product.quantity + 1 }
+              : product
+          ),
+        };
+      } else {
+      
+        return {
+          ...state,
+          cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+       
+      };
+      }
     case "REMOVE_FROM_CART":
       return {
         ...state,
@@ -49,6 +64,7 @@ const cartReducer = (state, action) => {
           (product) => product.productId !== action.payload.productId
         ),
       };
+ 
     case "INCREMENT":
       return {
         ...state,
@@ -58,15 +74,21 @@ const cartReducer = (state, action) => {
             : product
         ),
       };
+   
     case "DECREMENT":
       return {
         ...state,
         cartItems: state.cartItems.map((product) =>
-          item.productId === action.payload.productId
-            ? { ...product, quantity: product.quantity - 1 }
+          product.productId === action.payload.productId
+            ? { ...product, quantity: Math.max(product.quantity - 1, 1) }
             : product
         ),
       };
+      case "SET_LOADING":
+  return {
+    ...state,
+    loading: action.payload,
+  };
     case "CLEAR_CART":
       return {
         ...state,
@@ -77,4 +99,7 @@ const cartReducer = (state, action) => {
   }
 };
 
+
 export default cartReducer;
+
+

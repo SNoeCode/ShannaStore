@@ -9,31 +9,34 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="footer-container">
+        <footer className="footer-container">
+    {/* <div className="footer"> */}
+
       <div className="social-icons">
         <a
           href="https://www.facebook.com"
           target="_blank"
           rel="noopener noreferrer"
-        >
+          >
           <FontAwesomeIcon icon={faFacebook} />
         </a>
         <a
           href="https://www.twitter.com"
           target="_blank"
           rel="noopener noreferrer"
-        >
+          >
           <FontAwesomeIcon icon={faTwitter} />
         </a>
         <a
           href="https://www.instagram.com"
           target="_blank"
           rel="noopener noreferrer"
-        >
+          >
           <FontAwesomeIcon icon={faInstagram} />
         </a>
       </div>
       <p>&copy; 2024 Shanna's 2nd Chance store. All rights reserved.</p>
+          {/* </div> */}
     </footer>
   );
 };

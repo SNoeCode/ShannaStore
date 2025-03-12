@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -11,119 +13,123 @@ import {
 import Captcha from "../../Image/clipart-captcha-code-1-512x512-61ae.png";
 
 const Login = () => {
-  const { updateAuthedUser } = useContext(UserContext);
-  const [login, setLogin] = useState({
+  const { authedUser, setAuthedUser, updatedAuthedUser } =
+    useContext(UserContext);
+  const { dispatch, fetchCart } = useContext(CartContext);
+  const [credentials, setCredentials] = useState({
     username: "",
     password: "",
   });
-  const { saveCartToBackend, setCart } = useContext(CartContext);
-  const [username, setUsername] = useState("");
-  const [authedUser, setAuthedUser] = useState(null);
-  const [password, setPassword] = useState("");
+  // const [authedUser, setAuthedUser] = useState(null);
   const [userInputValue, setUserInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState({});
-  const [userData, setUserData] = useState({});
-
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
-  // const [cart, setCart] = useState([]);
-
-  // const handleSaveCart = () => {
-  //   handleConfirm(setCart);
-  // };
-
   const navigate = useNavigate();
+  const [cart, setCart] = useState({});
+
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    if (authedUser?.userId && authedUser.token) {
+      fetchCart(authedUser.userId, authedUser.token); 
+    }
+  }, [authedUser]);
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
+    const token = localStorage.getItem("token");
+    const productId = localStorage.getItem("productId");
+    const _id = localStorage.getItem("_id");
+   
+    let cartItems = [];
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems && storedCartItems !== "undefined") {
+      try {
+        cartItems = JSON.parse(storedCartItems);
+      } catch (error) {
+        console.error("Error parsing cartItems:", error);
+      }
+    }
+
+    let wishlist = [];
+    const storedWishlist = localStorage.getItem("wishlist");
+    if (storedWishlist && storedWishlist !== "undefined") {
+      try {
+        wishlist = JSON.parse(storedWishlist);
+      } catch (error) {
+        console.error("Error parsing wishlist:", error);
+      }
+    }
+
+   
+    if (userId && username) {
+      setAuthedUser({
+        userId,
+        _id,
+        username,
+        token,
+        productId,
+        cartItems,
+        wishlist,
+      });
+    }
+  }, []);
 
   useEffect(() => {
-    if (username && password) {
-      setError("");
-    }
-  }, [username, password]);
-//   useEffect(() => {
-//     const userId = localStorage.getItem("userId");
-//     const username = localStorage.getItem("username");
-//     const token = localStorage.getItem("token");
-//     const productId = localStorage.getItem("productId");
-//     const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
-//     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-// const _id = localStorage.getItem("_id");
-//     if (userId && username) {
-//       setAuthedUser({
-//         userId,
-//         _id,
-//         username,
-//         token,
-//         productId,
-//         cartItems,
-//         wishlist,
-//       });
-//     }
-//   }, [setAuthedUser]);
-  useEffect(() => {
+    
     console.log("authedUser changed:", authedUser);
   }, [authedUser]);
-  const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-  const handleLogin = (e) => {
-    console.log("login", e.target.value);
-    setLogin((prev) => {
-      console.log("prev", prev);
-      return {
-        ...prev,
-        [e.target.id]: e.target.value,
-      };
-    });
-  };
-  const handleLogin1 = async (e) => {
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsModalOpen(true);
   };
 
-  
-  const handleConfirm = async ({ token, setToken }) => {
+  const handleConfirm = async () => {
     const verificationCode = "just example";
     if (userInputValue !== verificationCode) return;
-  const response =
-    axios({
-      method: "post",
-      url: "http://localhost:3004/api/login",
-      data:login,
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
-    })
-      .then((response) => {
-        console.log("res", response.data);
-localStorage.setItem("token", response.data.token);
-setUserData(response.data)
-    setAuthedUser({
-      _id: response.data.found._id,
-      userId: response.data.found.userId,
-      username: response.data.found.username,
-      cartId: response.data.found.cartId,
-      token: response.data.found.token,
-      cartItems: response.data.found.cartItems || [],
-      wishlist: response.data.found.wishlist || []
-    });
-
-    localStorage.setItem("userId", response.data.found.userId);
-    localStorage.setItem("username",  response.data.found.username);
-    localStorage.setItem("cartId",   response.data.found.cartId);
-    localStorage.setItem("token",  response.data.found.token);
-localStorage.setItem("_id",  response.data.found._id);
-    localStorage.setItem("cartItems", JSON.stringify(response.data.found.cartItems || []));
-    localStorage.setItem("wishlist", JSON.stringify(response.data.found.wishlist|| []));
-        if (response.data.msg === "good login") {
-
-          navigate("/account");
-        } else {
-          alert("BAD LOGIN");
-        }
-      })
-      .catch((error) => console.log(error));
   };
- 
+  const handleConfirmLogin = async ({ cartItems }) => {
+    try {
+      const loginResponse = await axios.post(
+        "http://localhost:3004/api/login",
+        credentials,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("res", loginResponse.data);
+      const user = loginResponse.data.found;
+      const authToken = loginResponse.data.found.token;
+      setCart(loginResponse.data.found.cartItems);
+     
+      setAuthedUser(user);
+
+      localStorage.setItem("token", authToken);
+      localStorage.setItem("userId", user.userId);
+      localStorage.setItem("username", user.username);
+      localStorage.setItem("cartId", user.cartId);
+      localStorage.setItem("_id", user._id);
+      localStorage.setItem("cartItems", JSON.stringify(user.cartItems || []));
+
+      localStorage.setItem("wishlist", JSON.stringify(user.wishlist || []));
+      console.log("user", user); 
+      const userId = user.userId;
+      dispatch({
+        type: "UPDATE_CART",
+        payload: { cartItems },
+      });
+
+      fetchCart();
+     
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("Login failed. Please check your credentials and try again.");
+    }
+    alert("User Logged In");
+    navigate("/account");
+  };
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -145,26 +151,25 @@ localStorage.setItem("_id",  response.data.found._id);
             <b>Welcome Back! Please Login!</b>
           </h2>
 
-          <form className="user-login-form" onSubmit={handleLogin1}>
+          <form className="user-login-form" onSubmit={handleLogin}>
             <div className="user-form-group">
-              <label>Username: </label>
+              <label>Username:</label>
               <input
                 id="username"
                 type="text"
-                // onChange={(e) => setUsername(e.target.value)}
-                onChange={(e) => handleLogin(e)}
-                required
-                // value={username}
+                onChange={(e) =>
+                  setCredentials({ ...credentials, username: e.target.value })
+                }
               />
             </div>
             <div className="user-form-group">
-              <label>Password: </label>
+              <label>Password:</label>
               <input
                 id="password"
                 type="password"
-                // value={password}
-                // onChange={(e) => setPassword(e.target.value)}
-                onChange={(e) => handleLogin(e)}
+                onChange={(e) =>
+                  setCredentials({ ...credentials, password: e.target.value })
+                }
                 required
               />
             </div>
@@ -209,7 +214,7 @@ localStorage.setItem("_id",  response.data.found._id);
               <div className="user-modal-buttons">
                 <button
                   type="submit"
-                  onClick={handleConfirm}
+                  onClick={handleConfirmLogin}
                   className="user-confirm-button"
                 >
                   Confirm

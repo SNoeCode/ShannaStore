@@ -1,25 +1,47 @@
 const jwt = require("jsonwebtoken");
-
+const express = require("express");
+const app = express();
+app.use(express.json());
 const MiddleWare = (req, res, next) => {
   if (!req.headers.cookie) {
     console.log("NO COOKIE");
-    res.json({ msg: "no coookie" });
+    return res.status(401).json({ msg: "No cookie provided" }); 
   } else {
     console.log("$$$$", req.headers.cookie.split("="));
     const split = req.headers.cookie.split("=");
-    console.log("SPILT", split[1]);
+    console.log("SPLIT", split[1]);
 
-    const decoded = jwt.verify(split[1], process.env.SECRET_KEY);
-    console.log("decoded", decoded);
+    let decoded;
+    try {
+      decoded = jwt.verify(split[1], process.env.SECRET_KEY);
+      console.log("decoded", decoded);
 
-    req.user = decoded;
-    if (!decoded.username) {
-      res.json({ msg: "bad token" });
-    } else {
-      res.json({ msg: "valid token" });
+      req.user = decoded;
+      if (!decoded.username) {
+        return res.status(401).json({ msg: "Bad token" }); 
+      } else {
+        console.log("good login");
+        next(); 
+      }
+    } catch (err) {
+      return res.status(401).json({ msg: "Invalid token" }); 
     }
+  }
+};
+const auth = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ msg: "Unauthorized: No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    req.user = decoded; 
     next();
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    res.status(401).json({ msg: "Unauthorized: Invalid token" });
   }
 };
 
-module.exports = MiddleWare;
+module.exports = {auth, MiddleWare};

@@ -6,11 +6,12 @@ import "./Navbar.css";
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import { CartContext } from "../../context/cartContext";
 import { UserContext } from "../../context/UserContext";
-
+// import consolidateCartItems from '/src/utils/consolidateCartItems.js';
 const Navbar = () => {
-  const { cartItems, addItem, setCartItems, toggleCart } =
+  const { cartItems, addItem, setCartItems, toggleCart, dispatch, clearCart } =
     useContext(CartContext);
-  const { authedUser, updateAuthedUser } = useContext(UserContext);
+  const { authedUser, setAuthedUser, updatedAuthedUser } =
+    useContext(UserContext);
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,34 +20,50 @@ const Navbar = () => {
   const [products, setProducts] = useState([]);
   const username = localStorage.getItem("username");
   const isUserSignedIn = !!localStorage.getItem("token");
-  const cartQuantity = cartItems ? cartItems.length : 0;
+  // const cartQuantity = cartItems ? cartItems.length : 0;
+
+  console.log("Cart Items in Navbar:", cartItems);
+  const cartQuantity = cartItems
+    ? cartItems.reduce((total, item) => total + item.quantity, 0)
+    : 0;
+  console.log("Cart Quantity:", cartQuantity);
 
   const navigate = useNavigate();
 
   const handleSignedOut = async () => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
     try {
-      await axios.post(
-        `http://localhost:3004/api/logout`,
-        { token, userId },
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      const response = await axios.post(
+        "http://localhost:3004/api/logout",
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           withCredentials: true,
         }
       );
+      console.log(
+        "Before logout state:",
+        JSON.parse(JSON.stringify(cartItems))
+      );
+      localStorage.setItem("cartItems", cartItems);
+      clearCart();
+
+      console.log("Logout successful:", response.data);
+
+      localStorage.removeItem("cartItems");
+
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
-      authedUser({ userId: null, token: null, username: null });
+      setAuthedUser(null);
 
-      console.log("Logged out successfully");
+      alert("User Logged Out!");
+      navigate("/login");
     } catch (error) {
-      console.error(
-        "Error logging out:",
-        error.response?.data || error.message
-      );
+      console.error(error);
     }
   };
 

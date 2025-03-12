@@ -14,7 +14,7 @@ import ShoppingCart from "./pages/ShoppingCart/ShoppingCart";
 import Cart from "./pages/Cart/Cart";
 import { CartContext } from "./context/cartContext";
 import { UserContext } from "./context/UserContext";
-
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
 import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
@@ -24,39 +24,40 @@ const App = () => {
   const [authedUser, setAuthedUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("userToken") ?? null);
   const [cartItems, setCartItems] = useState([]);
-  const { updateAuthedUser } = useContext(UserContext);
+
   const isUserLoggedIn = !!localStorage.getItem("token");
 
   // const { useFetchCart } = useContext(CartContext);
 
-
-
   return (
     <>
       <Navbar />
-        <ShoppingCart />
+      <ShoppingCart />
       <Routes>
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login setAuthedUser={authedUser} />} />
+        {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
         <Route path="categories/:category" element={<CategoriesPage />} />
         <Route path="product-detail/:id" element={<ProductDetails />} />
-        <Route path="/account" element={<Account setAuthedUser={authedUser} />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/account/*" element={<ProtectedRoute />} />
+
+        <Route path="account" element={<Account />} />
+        <Route path="cart" element={<Cart />} />
+        <Route path="shopping-cart" element={<ShoppingCart />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="cart" element={<ShoppingCart />} />
       </Routes>
-
+ 
       <div
         style={{
           // minHeight: "50vh",
           display: "flex",
           flexDirection: "column",
         }}
-      />
+      /> 
 
       <Footer />
     </>

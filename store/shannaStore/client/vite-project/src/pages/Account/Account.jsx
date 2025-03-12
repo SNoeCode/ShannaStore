@@ -6,10 +6,11 @@ import "./Account.css";
 import { UserContext } from "../../context/UserContext";
 const Account = () => {
   const username = localStorage.getItem("username");
-   const { authedUser, updateAuthedUser } = useContext(UserContext)
+   const { authedUser, setAuthedUser } = useContext(UserContext)
   return (
     <>
       <div className="container-account">
+        {authedUser ? username : "Guest"}
         <h2>Welcome, {username || "Guest"}</h2>
 
         <div className="account-options">

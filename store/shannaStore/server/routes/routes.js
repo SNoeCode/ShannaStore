@@ -1,31 +1,43 @@
 const mongoose = require("mongoose");
-const User = require("../models/user.Model");
 const Cart = require("../models/cart.Model");
-const Products = require("../models/product.Model");
-
+const User = require("../models/user.Model");
 const {
-  addToCart,
+  getCart,
+  updateCartItem,
+  removeCartItem,
+  clearCart,
+} = require("../controllers/cart.controller");
+const {
   fetchCart,
+  addToCart,
   saveCart,
+  updateCartItems,
   Signup,
   Login,
-  getUserId,
-  GetUsers,
   AuthCheck,
   Logout,
+  CartUpdate,
   Google,
 } = require("../controllers/user.Controller");
-const MiddleWare = require("../middleware/middleware");
+const { auth, MiddleWare } = require("../middleware/middleware");
 const verifyJWT = require("../middleware/authenticate");
 
 module.exports = (app) => {
   app.post("/api/signup", Signup);
+  app.get("/api/cart/:userId", auth, fetchCart);
+ 
   app.post("/api/:userId/addToCart", MiddleWare, addToCart);
-  app.get("/api/cart/:id", verifyJWT, fetchCart);
-  app.get("/api/cart/:userId", verifyJWT, getUserId);
+
+  
   app.post("/api/login", Login);
-  app.post("/api/logout", verifyJWT, Logout);
-  app.post("/api/cart/saveCart", verifyJWT, saveCart);
-  app.get("/api/user/getUsers", verifyJWT, GetUsers);
-  app.get("/authCheck", AuthCheck);
+  app.post("/api/logout", MiddleWare, Logout);
+  app.post("/api/:userId/saveCart", MiddleWare, saveCart);
+  app.get("/api/authCheck", MiddleWare, AuthCheck);
+  
+
+  app.put("/api/cart/update/:userId", auth, updateCartItems);
+
+  app.delete("/api/remove/:productId", auth, removeCartItem);
+
+  app.delete("/api/clear", auth, clearCart);
 };
