@@ -19,7 +19,7 @@ const Navbar = () => {
 
   const [products, setProducts] = useState([]);
   const username = localStorage.getItem("username");
-  const isUserSignedIn = !!localStorage.getItem("token");
+  const isUserSignedIn = localStorage.getItem("token");
   // const cartQuantity = cartItems ? cartItems.length : 0;
 
   console.log("Cart Items in Navbar:", cartItems);
@@ -55,6 +55,8 @@ const Navbar = () => {
       console.log("Logout successful:", response.data);
 
       localStorage.removeItem("cartItems");
+      localStorage.removeItem("_id");
+      localStorage.removeItem("username");
 
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
@@ -119,6 +121,10 @@ const Navbar = () => {
               <button onClick={() => handleNavigation("/contact-us")}>
                 Contact Us
               </button>
+            </li>
+
+            <li>
+              <button onClick={() => handleNavigation("/admin-login")}>Admin</button>              
             </li>
             <div className="searchbar-container">
               <SearchBar />

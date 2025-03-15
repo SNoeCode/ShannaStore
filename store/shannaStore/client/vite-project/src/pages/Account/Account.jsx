@@ -9,7 +9,7 @@ const Account = () => {
    const { authedUser, setAuthedUser } = useContext(UserContext)
   return (
     <>
-      <div className="container-account">
+      <div style={{backgroundColor:'red'}} className="container-account">
         {authedUser ? username : "Guest"}
         <h2>Welcome, {username || "Guest"}</h2>
 

@@ -3,17 +3,17 @@ import { useNavigate, Outlet } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../../context/UserContext";
 import { CartContext } from "../../context/cartContext";
-const ProtectedRoute = () => {
+const ProtectedAdminRoute = () => {
   const navigate = useNavigate();
   const { authedUser, setAuthedUser } = useContext(UserContext);
 
   const { fetchCart } = useContext(CartContext);
   const [loading, setLoading] = useState(true);
-
+  const role = localStorage.getItem("role");
   useEffect(() => {
     console.log("Performing auth check...");
     axios
-      .get("http://localhost:3004/api/user-authCheck", {
+      .get("http://localhost:3004/api/admin-authCheck", {
         withCredentials: true,
       })
       .then((res) => {
@@ -46,4 +46,4 @@ const ProtectedRoute = () => {
   return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default ProtectedAdminRoute;
