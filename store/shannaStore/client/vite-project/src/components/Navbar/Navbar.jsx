@@ -19,7 +19,7 @@ const Navbar = () => {
 
   const [products, setProducts] = useState([]);
   const username = localStorage.getItem("username");
-  const isUserSignedIn = !!localStorage.getItem("token");
+  const isUserSignedIn = localStorage.getItem("token");
   // const cartQuantity = cartItems ? cartItems.length : 0;
 
   console.log("Cart Items in Navbar:", cartItems);
@@ -55,6 +55,8 @@ const Navbar = () => {
       console.log("Logout successful:", response.data);
 
       localStorage.removeItem("cartItems");
+      localStorage.removeItem("_id");
+      localStorage.removeItem("username");
 
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
@@ -120,6 +122,8 @@ const Navbar = () => {
                 Contact Us
               </button>
             </li>
+
+         
             <div className="searchbar-container">
               <SearchBar />
               <button>Search</button>
@@ -130,7 +134,7 @@ const Navbar = () => {
                   <span>
                     <li>Hi, {username}</li>
                     <li>
-                      <Link to="/account">Account</Link>
+                      <Link to="/auth/account">Account</Link>
                     </li>
 
                     <li>
@@ -151,7 +155,11 @@ const Navbar = () => {
                 </>
               )}
             </ul>
-
+            <li>
+              <Link to="admin-login">
+              <button onClick={() => handleNavigation("/admin-login")}>Admin</button>              
+              </Link>
+            </li>
             <li className="shopping-cart">
               <i className="fas fa-cart-shopping fa-2x" onClick={toggleCart}>
                 <span className="badge">{cartQuantity}</span>

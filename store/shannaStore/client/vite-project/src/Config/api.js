@@ -2,7 +2,7 @@ import axios from "axios";
 const getProducts = async () => {
   try {
     const res = await axios.get(`https://fakestoreapi.com/products?limit=20`);
-    // console.log(res);
+    console.log(res);
 
     return res;
   } catch (err) {

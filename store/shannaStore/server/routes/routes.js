@@ -4,11 +4,11 @@ const User = require("../models/user.Model");
 const {
   getCart,
   updateCartItem,
-  removeCartItem,
   clearCart,
 } = require("../controllers/cart.controller");
 const {
   fetchCart,
+  removeCartItem,
   addToCart,
   saveCart,
   updateCartItems,
@@ -19,8 +19,7 @@ const {
   CartUpdate,
   Google,
 } = require("../controllers/user.Controller");
-const { auth, MiddleWare } = require("../middleware/middleware");
-const verifyJWT = require("../middleware/authenticate");
+const { auth, MiddleWare,isAdmin } = require("../middleware/middleware");
 
 module.exports = (app) => {
   app.post("/api/signup", Signup);
@@ -32,12 +31,13 @@ module.exports = (app) => {
   app.post("/api/login", Login);
   app.post("/api/logout", MiddleWare, Logout);
   app.post("/api/:userId/saveCart", MiddleWare, saveCart);
-  app.get("/api/authCheck", MiddleWare, AuthCheck);
+  app.get("/api/user-authCheck", MiddleWare, AuthCheck);
+  app.get("/api/admin-authCheck",isAdmin,MiddleWare, AuthCheck);
   
 
   app.put("/api/cart/update/:userId", auth, updateCartItems);
 
-  app.delete("/api/remove/:productId", auth, removeCartItem);
+  app.delete("/api/remove/:userId", auth, removeCartItem);
 
-  app.delete("/api/clear", auth, clearCart);
+
 };

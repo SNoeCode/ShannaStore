@@ -100,10 +100,10 @@ body {
 }
 .btn-container {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
 
-  margin-right: 50px;
-  align-items: center;
+  /* margin-right: 50px; */
+  /* align-items: center; */
 }
 .close-btn {
   top: 25px;

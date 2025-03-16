@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +18,7 @@ const Login = () => {
     username: "",
     password: "",
   });
+ 
   // const [authedUser, setAuthedUser] = useState(null);
   const [userInputValue, setUserInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,18 +27,19 @@ const Login = () => {
   const [cart, setCart] = useState({});
 
   const token = localStorage.getItem("token");
-  useEffect(() => {
-    if (authedUser?.userId && authedUser.token) {
-      fetchCart(authedUser.userId, authedUser.token); 
-    }
-  }, [authedUser]);
+  // useEffect(() => {
+  //   if (authedUser?.userId && authedUser.token) {
+  //     fetchCart(authedUser.userId, authedUser.token);
+  //   }
+  // }, [authedUser]);
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const username = localStorage.getItem("username");
     const token = localStorage.getItem("token");
     const productId = localStorage.getItem("productId");
     const _id = localStorage.getItem("_id");
-   
+    const role = localStorage.getItem("role");
+
     let cartItems = [];
     const storedCartItems = localStorage.getItem("cartItems");
     if (storedCartItems && storedCartItems !== "undefined") {
@@ -60,10 +60,10 @@ const Login = () => {
       }
     }
 
-   
     if (userId && username) {
       setAuthedUser({
         userId,
+        role,
         _id,
         username,
         token,
@@ -75,7 +75,6 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    
     console.log("authedUser changed:", authedUser);
   }, [authedUser]);
 
@@ -102,9 +101,9 @@ const Login = () => {
       const user = loginResponse.data.found;
       const authToken = loginResponse.data.found.token;
       setCart(loginResponse.data.found.cartItems);
-     
-      setAuthedUser(user);
 
+      setAuthedUser(user);
+      localStorage.setItem("role", user.role);
       localStorage.setItem("token", authToken);
       localStorage.setItem("userId", user.userId);
       localStorage.setItem("username", user.username);
@@ -113,7 +112,7 @@ const Login = () => {
       localStorage.setItem("cartItems", JSON.stringify(user.cartItems || []));
 
       localStorage.setItem("wishlist", JSON.stringify(user.wishlist || []));
-      console.log("user", user); 
+      console.log("user", user);
       const userId = user.userId;
       dispatch({
         type: "UPDATE_CART",
@@ -121,16 +120,15 @@ const Login = () => {
       });
 
       fetchCart();
-     
     } catch (error) {
       console.error("Error during login:", error);
       setError("Login failed. Please check your credentials and try again.");
     }
     alert("User Logged In");
-    navigate("/account");
+    navigate("/auth/account");
   };
-
-
+  
+   
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setUserInputValue("");
@@ -227,8 +225,12 @@ const Login = () => {
                 </button>
               </div>
             </div>
+          
           </div>
         )}
+        <div>
+      
+        </div>
       </div>
     </>
   );

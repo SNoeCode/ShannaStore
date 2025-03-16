@@ -10,6 +10,8 @@ export const UserProvider = ({ children }) => {
 useEffect(() => {
   const userId = localStorage.getItem("userId") || null;
   const _id = localStorage.getItem("_id") || null;
+  const role = localStorage.getItem("role") || null;
+
   const username = localStorage.getItem("username") || null;
   const token = localStorage.getItem("token") || null;
 const cartItems = localStorage.getItem('cartItems')
@@ -17,6 +19,7 @@ const cartItems = localStorage.getItem('cartItems')
     userId,
     _id,
     username,
+    role,
     token,
     cartItems
   };
@@ -32,8 +35,8 @@ const cartItems = localStorage.getItem('cartItems')
   localStorage.setItem("userId", updatedAuthedUser.userId || "");
   localStorage.setItem("_id", updatedAuthedUser._id || "");
   localStorage.setItem("username", updatedAuthedUser.username || "");
-  
-  // Load cart items from local storage
+  localStorage.setItem("role", updatedAuthedUser.role || "");
+ 
   const savedCartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
   setCartItems(savedCartItems);
 }, []);

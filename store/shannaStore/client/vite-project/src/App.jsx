@@ -18,13 +18,15 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
 import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
-
+import ProtectedAdminRoute from "./components/ProtectedRoute/ProtectedAdminRoute";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminLogin from "./pages/Admin/AdminLogin/AdminLogin";
 const App = () => {
   const [username, setUsername] = useState(null);
   const [authedUser, setAuthedUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("userToken") ?? null);
+  const [token, setToken] = useState(localStorage.getItem("token") ?? null);
   const [cartItems, setCartItems] = useState([]);
-
+  const role = useState(localStorage.getItem("role") ?? null);
   const isUserLoggedIn = !!localStorage.getItem("token");
 
   // const { useFetchCart } = useContext(CartContext);
@@ -35,29 +37,30 @@ const App = () => {
       <ShoppingCart />
       <Routes>
         {/* <Route path="/login" element={<Login />} /> */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-dashboard" element={<ProtectedAdminRoute />} />
+        <Route path="admin" element={<AdminDashboard />}></Route>
+
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="categories/:category" element={<CategoriesPage />} />
         <Route path="product-detail/:id" element={<ProductDetails />} />
-        <Route path="/account/*" element={<ProtectedRoute />} />
-
-        <Route path="account" element={<Account />} />
-        <Route path="cart" element={<Cart />} />
-        <Route path="shopping-cart" element={<ShoppingCart />} />
-        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/auth" element={<ProtectedRoute />}>
+          <Route path="account" element={<Account />} />
+        </Route>
+        <Route path="contact-us" element={<ContactUs />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
- 
       <div
         style={{
           // minHeight: "50vh",
           display: "flex",
           flexDirection: "column",
         }}
-      /> 
+      />
 
       <Footer />
     </>
