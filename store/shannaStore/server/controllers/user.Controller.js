@@ -24,6 +24,7 @@ const Signup = (req, res) => {
       User.create({
         name: req.body.name,
         email: req.body.email,
+        role: req.body.role,
         username: req.body.username,
         password: hashedPassword,
         userId: new mongoose.Types.ObjectId(),
@@ -135,6 +136,7 @@ const Login = (req, res) => {
             email: found.email,
             cartItems: found.cartItems,
             wishlist: found.wishlist,
+            role: found.role
           },
         });
       console.log({
@@ -144,12 +146,13 @@ const Login = (req, res) => {
         _id: found._id,
         email: found.email,
         cartItems: found.cartItems,
+        role: found.role,
         wishlist: found.wishlist,
       });
     })
     .catch((error) => {
       console.error("Login error:", error);
-      res.status(500).json({ message: "Login failed" });
+      res.status(500).json({ msg: "Login failed" });
     });
 };
 const AuthCheck = (req, res) => {
@@ -173,7 +176,7 @@ const AuthCheck = (req, res) => {
     User.findById(decoded._id)
       .then((found) => {
         console.log("found", found);
-        res.json({ message: "valid token", found, token });
+        res.json({ msg: "valid token", found, token });
       })
       .catch((err) => {
         console.log(err);
@@ -272,95 +275,57 @@ const addToCart = async (req, res) => {
   }
 };
 
-// const updateCartItems = async (req, res) => {
-//   console.log(req.body);
-//   const { userId } = req.params;
-//   const { productId, quantity } = req.body;
 
-//   try {
-//     if (!mongoose.Types.ObjectId.isValid(userId)) {
-//       return res.status(400).json({ error: "Invalid userId format" });
-//     }
-//     const objectId = new mongoose.Types.ObjectId(userId);
-
-//     const user = await User.findOne({ _id: objectId });
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const itemIndex = user.cartItems.findIndex(
-//       (item) => item.productId.toString() === productId
-//     );
-//     if (itemIndex === -1) {
-//       return res.status(404).json({ message: "Item not found in cart" });
-//     }
-
-//     user.cartItems[itemIndex].quantity = quantity;
-
-//     await user.save();
-
-//     res.status(200).json({
-//       message: "Cart item updated",
-//       cartItems: user.cartItems,
-//     });
-//   } catch (error) {
-//     console.error("Error updating cart item:", error);
-//     res.status(500).json({ error: "Server error", details: error.message });
-//   }
-// };
 const updateCartItems = async (req, res) => {
-  const { userId } = req.params;
-  const { productId, quantity } = req.body;
+   console.log(req.body);
+   try {
+      const { userId } = req.params;
+      const { productId, quantity } = req.body;
 
-  try {
-    // Validate user ID
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: "Invalid userId format" });
-    }
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+         return res.status(400).json({ error: "Invalid userId format" });
+      }
 
-    const objectId = new mongoose.Types.ObjectId(userId);
+      const user = await User.findOne({ userId });
+      if (!user) {
+         return res.status(404).json({ message: "User not found" });
+      }
+// Find the item in the cart
+      const itemIndex = user.cartItems.findIndex(
+         (item) => item.productId.toString() === productId
+      );
 
-    // Fetch the user
-    const user = await User.findOne({ _id: objectId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+      if (itemIndex !== -1) {
+         
+      //  if (itemIndex === -1) {
+         user.cartItems[itemIndex].quantity = quantity;
+      } else {
+     
+         user.cartItems.push({
+            productId: new mongoose.Types.ObjectId(String(productId)),
+            quantity,
+            ...req.body,
+         });
+      }
 
-    // Find the item in the cart
-    const itemIndex = user.cartItems.findIndex(
-      (item) => item.productId.toString() === productId
-    );
+      await user.save();
 
-    if (itemIndex >= 0) {
-      user.cartItems[itemIndex].quantity = quantity;
-    } else {
-      // Add the new item to the cart if it doesn't exist
-      user.cartItems.push({
-        productId: new mongoose.Types.ObjectId(productId),
-        quantity,
-        ...req.body, // Spread additional fields like title, price, etc.
+      console.log("Updated Cart Items:", user.cartItems);
+
+      res.status(200).json({
+         message: "Cart item updated",
+         cartItems: user.cartItems,
       });
-    }
-
-    await user.save();
-
-    console.log("Updated Cart Items:", user.cartItems);
-
-    // Return the updated cart items
-    res.status(200).json({
-      message: "Cart item updated",
-      cartItems: user.cartItems,
-    });
-  } catch (error) {
-    console.error("Error updating cart item:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
-  }
+   } catch (error) {
+      console.error("Error updating cart item:", error);
+      res.status(500).json({ error: "Server error", details: error.message });
+   }
 }
 const fetchCart = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findOne({ userId: userId }).populate(
+    const user = await User.findOne({ _id: userId }).populate(
       "cartItems.productId"
     );
 
@@ -377,62 +342,29 @@ const fetchCart = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-// const consolidateCartItems = (items) => {
-//   return items.reduce((acc, item) => {
-//     const existingItem = acc.find((i) => i.productId.toString() === item.productId.toString());
-//     if (existingItem) {
-//       existingItem.quantity += item.quantity;
-//     } else {
-//       acc.push(item);
-//     }
-//     return acc;
-//   }, []);
-// };
 
-// const fetchCart = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
 
-//     if (!mongoose.Types.ObjectId.isValid(userId)) {
-//       return res.status(400).json({ error: "Invalid userId format" });
-//     }
 
-//     const user = await User.findOne({ _id: userId });
+const removeCartItem = (req, res) => {
+  console.log("Delete HIT", req.params);
+  console.log("Authenticated User:", req.user);
 
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     const consolidatedCartItems = consolidateCartItems(user.cartItems);
-//     res.status(200).json({ cartItems: consolidatedCartItems });
-//   } catch (error) {
-//     console.error("Error fetching cart:", error);
-//     res.status(500).json({ error: "Server error", details: error.message });
-//   }
-// };
-const CartUpdate = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    if (!ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: "Invalid userId format" });
-    }
-
-    const objectId = ObjectId(userId);
-    const { productId, quantity } = req.body;
-
-    const result = await Cart.updateOne(
-      { userId: objectId, "items.productId": productId },
-      { $set: { "items.$.quantity": quantity } }
-    );
-
-    res.status(200).json;
-  } catch (error) {
-    console.error("Error updating cart item:", error);
-    res.status(500).json({
-      message: "Server error",
-      error: error.message,
+  User.findOneAndUpdate(
+    { _id: req.user},
+    { $pull: { cartItems: { productId: req.params.productId } } }, 
+    { new: true } 
+  )
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        return res.status(404).json({ msg: "User not found" });
+      }
+      console.log("Updated User:", updatedUser);
+      res.json(updatedUser);
+    })
+    .catch((err) => {
+      console.error("Error deleting cart item:", err);
+      res.status(500).json({ msg: "Internal server error" });
     });
-  }
 };
 
 module.exports = {
@@ -444,7 +376,7 @@ module.exports = {
   GetUsers,
   updateCartItems,
   AuthCheck,
-  CartUpdate,
+ removeCartItem,
   Logout,
   Google,
 };
