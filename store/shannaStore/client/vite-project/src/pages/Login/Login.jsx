@@ -18,6 +18,7 @@ const Login = () => {
     username: "",
     password: "",
   });
+ 
   // const [authedUser, setAuthedUser] = useState(null);
   const [userInputValue, setUserInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,9 +125,10 @@ const Login = () => {
       setError("Login failed. Please check your credentials and try again.");
     }
     alert("User Logged In");
-    navigate("/account/account");
+    navigate("/auth/account");
   };
-
+  
+   
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setUserInputValue("");
@@ -223,8 +225,12 @@ const Login = () => {
                 </button>
               </div>
             </div>
+          
           </div>
         )}
+        <div>
+      
+        </div>
       </div>
     </>
   );

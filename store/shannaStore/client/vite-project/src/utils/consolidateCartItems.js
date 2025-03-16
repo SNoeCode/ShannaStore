@@ -18,4 +18,4 @@ const consolidateCartItems = (items) => {
   };
 
 
-/
+export default consolidateCartItems

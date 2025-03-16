@@ -9,7 +9,47 @@ const ProtectedAdminRoute = () => {
 
   const { fetchCart } = useContext(CartContext);
   const [loading, setLoading] = useState(true);
-  const role = localStorage.getItem("role");
+  const handleConfirmLogin = async ({ cartItems }) => {
+    try {
+      const loginResponse = await axios.post(
+        "http://localhost:3004/api/login",
+        credentials,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("res", loginResponse.data);
+      const user = loginResponse.data.found;
+      const authToken = loginResponse.data.found.token;
+      setCart(loginResponse.data.found.cartItems);
+
+      setAuthedUser(user);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("token", authToken);
+      localStorage.setItem("userId", user.userId);
+      localStorage.setItem("username", user.username);
+      localStorage.setItem("cartId", user.cartId);
+      localStorage.setItem("_id", user._id);
+      localStorage.setItem("cartItems", JSON.stringify(user.cartItems || []));
+
+      localStorage.setItem("wishlist", JSON.stringify(user.wishlist || []));
+      console.log("user", user);
+      const userId = user.userId;
+      dispatch({
+        type: "UPDATE_CART",
+        payload: { cartItems },
+      });
+
+      fetchCart();
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("Login failed. Please check your credentials and try again.");
+    }
+    alert("User Logged In");
+    navigate("/auth");
+  };
+  
   useEffect(() => {
     console.log("Performing auth check...");
     axios

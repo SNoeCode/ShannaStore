@@ -14,7 +14,7 @@ import { UserContext } from "../context/UserContext";
 export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
-  const { authedUser } = useContext(UserContext);
+  const { authedUser,updatedAuthedUser } = useContext(UserContext);
   const getLocalCartItems = () => {
     const storedCartItems = localStorage.getItem("cartItems");
     if (!storedCartItems || storedCartItems === "undefined") {

@@ -94,14 +94,22 @@ const calculateTotal = () => {
               <div key={item.productId} className="shopping-cart">
                 <div className="cart-item">
                   <img
-                    src={item.image}
+                    src={item.productId.image}
                     alt={item.title}
                     className="cart-item-img"
                   />
                   <div className="cart-item-details">
                     <h3>{item.title}</h3>
                   </div>
-                  <div className="btn-container">
+                
+                  <div className="price-section">
+                    <span className="item-price">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+               
+                </div>
+                <div className="btn-container">
                     <button
                       className="add"
                       onClick={() => handleIncrement(item.productId)}
@@ -115,19 +123,14 @@ const calculateTotal = () => {
                     >
                       -
                     </button>
-                  </div>
-                  <div className="price-section">
-                    <span className="item-price">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                  <button
+                     <button
                     className="remove-btn"
                     onClick={() => handleRemove(item.productId)}
                   >
                     Remove
                   </button>
-                </div>
+                  </div>
+
               </div>
             ))
           ) : (

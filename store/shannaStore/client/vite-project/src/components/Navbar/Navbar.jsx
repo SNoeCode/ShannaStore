@@ -123,9 +123,7 @@ const Navbar = () => {
               </button>
             </li>
 
-            <li>
-              <button onClick={() => handleNavigation("/admin-login")}>Admin</button>              
-            </li>
+         
             <div className="searchbar-container">
               <SearchBar />
               <button>Search</button>
@@ -136,7 +134,7 @@ const Navbar = () => {
                   <span>
                     <li>Hi, {username}</li>
                     <li>
-                      <Link to="/account">Account</Link>
+                      <Link to="/auth/account">Account</Link>
                     </li>
 
                     <li>
@@ -157,7 +155,11 @@ const Navbar = () => {
                 </>
               )}
             </ul>
-
+            <li>
+              <Link to="admin-login">
+              <button onClick={() => handleNavigation("/admin-login")}>Admin</button>              
+              </Link>
+            </li>
             <li className="shopping-cart">
               <i className="fas fa-cart-shopping fa-2x" onClick={toggleCart}>
                 <span className="badge">{cartQuantity}</span>
