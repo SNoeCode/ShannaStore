@@ -18,9 +18,10 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
 import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
-import ProtectedAdminRoute from "./components/ProtectedRoute/ProtectedAdminRoute";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
-import AdminLogin from "./pages/Admin/AdminLogin/AdminLogin";
+import ProtectedAdminRoute from './components/ProtectedRoute/ProtectedAdminRoute';
+import Dashboard from "./admin/DashBoard/Dashboard";
+import AdminLogin from "./admin/AdminLogin/AdminLogin";
+import { AdminProvider } from "./context/adminContext";
 const App = () => {
   const [username, setUsername] = useState(null);
   const [authedUser, setAuthedUser] = useState(null);
@@ -33,20 +34,24 @@ const App = () => {
 
   return (
     <>
+        <AdminProvider>
       <Navbar />
       <ShoppingCart />
       <Routes>
+        
         {/* <Route path="/login" element={<Login />} /> */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin-dashboard" element={<ProtectedAdminRoute />} />
-        <Route path="admin" element={<AdminDashboard />}></Route>
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin/" element={<ProtectedAdminRoute />}>
+            <Route path="dashboard" element={<Dashboard />} />
+          </Route>
+      
 
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
         <Route path="categories/:category" element={<CategoriesPage />} />
         <Route path="product-detail/:id" element={<ProductDetails />} />
-        <Route path="/auth" element={<ProtectedRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth/" element={<ProtectedRoute />}>
           <Route path="account" element={<Account />} />
         </Route>
         <Route path="contact-us" element={<ContactUs />} />
@@ -60,9 +65,10 @@ const App = () => {
           display: "flex",
           flexDirection: "column",
         }}
-      />
+        />
 
       <Footer />
+        </AdminProvider>
     </>
   );
 };

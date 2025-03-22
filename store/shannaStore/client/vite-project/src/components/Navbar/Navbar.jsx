@@ -35,7 +35,7 @@ const Navbar = () => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       const response = await axios.post(
-        "http://localhost:3004/api/logout",
+        `http://localhost:3004/api/logout`,
         {},
         {
           headers: {
