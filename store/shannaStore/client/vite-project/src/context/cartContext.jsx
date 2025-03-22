@@ -69,7 +69,7 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
-        `http://localhost:3004/api/cart/${userId}`,
+        `http://localhost:3004/cart/${userId}`,
         {
           headers: { 'Authorization': `Bearer ${token}`},
           withCredentials: true,

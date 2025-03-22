@@ -74,9 +74,9 @@ const Login = () => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log("authedUser changed:", authedUser);
-  }, [authedUser]);
+  // useEffect(() => {
+  //   console.log("authedUser changed:", authedUser);
+  // }, [authedUser]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -125,7 +125,7 @@ const Login = () => {
       setError("Login failed. Please check your credentials and try again.");
     }
     alert("User Logged In");
-    navigate("/auth/account");
+    navigate("/auth/");
   };
   
    

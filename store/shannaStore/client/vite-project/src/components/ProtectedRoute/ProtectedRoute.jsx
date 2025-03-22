@@ -41,7 +41,7 @@ const ProtectedRoute = () => {
     return authedUser ? (
       <Outlet />
     ) : (
-      <navigate to="/auth/account" replace />
+      <navigate to="account" replace />
     );
   };
       

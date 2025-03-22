@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
+const express = require("express");
+const router = express.Router();
+
 const Cart = require("../models/cart.Model");
 const User = require("../models/user.Model");
-const {
-  getCart,
-  updateCartItem,
-  clearCart,
-} = require("../controllers/cart.controller");
+
 const {
   fetchCart,
   removeCartItem,
@@ -16,28 +15,28 @@ const {
   Login,
   AuthCheck,
   Logout,
-  CartUpdate,
   Google,
 } = require("../controllers/user.Controller");
-const { auth, MiddleWare,isAdmin } = require("../middleware/middleware");
-
-module.exports = (app) => {
-  app.post("/api/signup", Signup);
-  app.get("/api/cart/:userId", auth, fetchCart);
- 
-  app.post("/api/:userId/addToCart", MiddleWare, addToCart);
-
-  
-  app.post("/api/login", Login);
-  app.post("/api/logout", MiddleWare, Logout);
-  app.post("/api/:userId/saveCart", MiddleWare, saveCart);
-  app.get("/api/user-authCheck", MiddleWare, AuthCheck);
-  app.get("/api/admin-authCheck",isAdmin,MiddleWare, AuthCheck);
-  
-
-  app.put("/api/cart/update/:userId", auth, updateCartItems);
-
-  app.delete("/api/remove/:userId", auth, removeCartItem);
+const { auth, MiddleWare, adminAuth } = require("../middleware/middleware");
 
 
-};
+  router.post("/api/signup", Signup);
+  router.get("/api/cart/:userId", auth, fetchCart);
+
+  router.post("/api/:userId/addToCart", MiddleWare, addToCart);
+
+
+  router.post("/login", Login);
+  router.post("/api/logout", MiddleWare, Logout);
+  router.post("/api/:userId/saveCart", MiddleWare, saveCart);
+  router.get("/user/auth", MiddleWare, AuthCheck);
+
+
+  router.put("/api/cart/update/:userId", auth, updateCartItems);
+
+  router.delete("/api/remove/:userId", auth, removeCartItem);
+
+  // router.get('/api/admin', adminAuth, isAdmin)
+  // router.post("/api/admin-login", AdminLogin);
+
+module.exports = router;

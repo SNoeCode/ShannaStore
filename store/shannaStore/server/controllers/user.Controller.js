@@ -5,9 +5,10 @@ const Cart = require("../models/cart.Model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { ObjectId } = require("mongoose");
+
 const Signup = (req, res) => {
   console.log("Registration hit", req.body);
-  const { name, username, email, password, cartItems } = req.body;
+  const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ msg: "Username and password required" });
   }
@@ -31,24 +32,31 @@ const Signup = (req, res) => {
         _id: new mongoose.Types.ObjectId(),
         cartItems: cartItems || [],
       })
+
         .then((created) => {
           console.log("User created:", created);
 
+
+          const token = jwt.sign(
+            { username: created.username, id: created._id },
+            process.env.SECRET_KEY,
+            { expiresIn: "1h" }
+          )
+          //sends success response
           res.status(201).json({
             msg: "User created successfully",
-            created,
-          });
+            username: created.username,
+            id: created._id,
+            token: token,
+          })
         })
         .catch((err) => {
           console.error(err);
           res.status(500).json({ msg: "Error creating user" });
         });
     })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ msg: "Server error" });
-    });
-};
+
+}
 
 const Google = (req, res) => {
   console.log(req.body);
@@ -57,7 +65,7 @@ const Google = (req, res) => {
 const GetUsers = async (req, res) => {
   const userId = req.params.id;
   try {
-    const user = await User.findById(userId).populate(
+    const user = await User.findById({ _id: userId }).populate(
       "cartItems.productId wishlist"
     );
     if (!user) {
@@ -101,6 +109,7 @@ const Login = (req, res) => {
   console.log("login", req.body);
   const { cartItems } = req.body;
   User.findOne({ username: req.body.username })
+    // User.findOne({_id: req.body._id})
     .then((found) => {
       if (!found) {
         console.log("User not found");
@@ -173,7 +182,7 @@ const AuthCheck = (req, res) => {
     }
     console.log("decoded:", decoded);
 
-    User.findById(decoded._id)
+    User.findById({ username: decoded.username, _id: decoded._id, userId: decoded.userId })
       .then((found) => {
         console.log("found", found);
         res.json({ msg: "valid token", found, token });
@@ -277,49 +286,49 @@ const addToCart = async (req, res) => {
 
 
 const updateCartItems = async (req, res) => {
-   console.log(req.body);
-   try {
-      const { userId } = req.params;
-      const { productId, quantity } = req.body;
+  console.log(req.body);
+  try {
+    const { userId } = req.params;
+    const { productId, quantity } = req.body;
 
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-         return res.status(400).json({ error: "Invalid userId format" });
-      }
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId format" });
+    }
 
-      const user = await User.findOne({ userId });
-      if (!user) {
-         return res.status(404).json({ message: "User not found" });
-      }
-// Find the item in the cart
-      const itemIndex = user.cartItems.findIndex(
-         (item) => item.productId.toString() === productId
-      );
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Find the item in the cart
+    const itemIndex = user.cartItems.findIndex(
+      (item) => item.productId.toString() === productId
+    );
 
-      if (itemIndex !== -1) {
-         
+    if (itemIndex !== -1) {
+
       //  if (itemIndex === -1) {
-         user.cartItems[itemIndex].quantity = quantity;
-      } else {
-     
-         user.cartItems.push({
-            productId: new mongoose.Types.ObjectId(String(productId)),
-            quantity,
-            ...req.body,
-         });
-      }
+      user.cartItems[itemIndex].quantity = quantity;
+    } else {
 
-      await user.save();
-
-      console.log("Updated Cart Items:", user.cartItems);
-
-      res.status(200).json({
-         message: "Cart item updated",
-         cartItems: user.cartItems,
+      user.cartItems.push({
+        productId: new mongoose.Types.ObjectId(String(productId)),
+        quantity,
+        ...req.body,
       });
-   } catch (error) {
-      console.error("Error updating cart item:", error);
-      res.status(500).json({ error: "Server error", details: error.message });
-   }
+    }
+
+    await user.save();
+
+    console.log("Updated Cart Items:", user.cartItems);
+
+    res.status(200).json({
+      message: "Cart item updated",
+      cartItems: user.cartItems,
+    });
+  } catch (error) {
+    console.error("Error updating cart item:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
 }
 const fetchCart = async (req, res) => {
   const { userId } = req.params;
@@ -350,9 +359,9 @@ const removeCartItem = (req, res) => {
   console.log("Authenticated User:", req.user);
 
   User.findOneAndUpdate(
-    { _id: req.user},
-    { $pull: { cartItems: { productId: req.params.productId } } }, 
-    { new: true } 
+    { _id: req.user },
+    { $pull: { cartItems: { productId: req.params.productId } } },
+    { new: true }
   )
     .then((updatedUser) => {
       if (!updatedUser) {
@@ -367,6 +376,65 @@ const removeCartItem = (req, res) => {
     });
 };
 
+// const AdminLogin = (req, res) => {
+//   console.log("login", req.body);
+
+//   User.findOne({ })
+//     .then((found) => {
+//       if (!found) {
+//         console.log("User not found");
+//         return res.status(401).json({ message: "User not found" });
+//       }
+//       const isPasswordValid = bcrypt.compareSync(
+//         req.body.password,
+//         found.password
+//       );
+//       if (!isPasswordValid) {
+//         console.log("Bad login");
+//         return res.status(401).json({ message: "Bad login" });
+//       }
+//       const token = jwt.sign(
+//         { username: found.username, _id: found._id, userId: found.userId, role: found.role },
+//         process.env.SECRET_KEY,
+//         { expiresIn: "30d" }
+//       );
+//       console.log("TOKEN", token);
+//       res
+//         .cookie("token", token, {
+//           httpOnly: true,
+//           maxAge: 3600000,
+//         })
+//         .status(200)
+//         .json({
+//           message: "good login",
+//           token,
+//           found: {
+//             userId: found.userId,
+//             username: found.username,
+//             _id: found._id,
+//             email: found.email,
+//             cartItems: found.cartItems,
+//             wishlist: found.wishlist,
+//             role: found.role
+//           },
+//         });
+//       console.log({
+//         token,
+//         userId: found.userId,
+//         username: found.username,
+//         _id: found._id,
+//         email: found.email,
+//         cartItems: found.cartItems,
+//         role: found.role,
+//         wishlist: found.wishlist,
+//       });
+//     })
+//     .catch((error) => {
+//       console.error("Login error:", error);
+//       res.status(500).json({ msg: "Login failed" });
+//     });
+// };
+
 module.exports = {
   addToCart,
   fetchCart,
@@ -376,7 +444,7 @@ module.exports = {
   GetUsers,
   updateCartItems,
   AuthCheck,
- removeCartItem,
+  removeCartItem,
   Logout,
   Google,
 };
