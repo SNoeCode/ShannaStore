@@ -87,11 +87,11 @@ const Logout = async (req, res) => {
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    if (!req.headers.authorization) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
+    // if (!req.headers.authorization) {
+    //   return res
+    //     .status(401)
+    //     .json({ message: "Unauthorized: No token provided" });
+    // }
     res.clearCookie("token", {
       httpOnly: true,
       secure: true,
@@ -376,64 +376,6 @@ const removeCartItem = (req, res) => {
     });
 };
 
-// const AdminLogin = (req, res) => {
-//   console.log("login", req.body);
-
-//   User.findOne({ })
-//     .then((found) => {
-//       if (!found) {
-//         console.log("User not found");
-//         return res.status(401).json({ message: "User not found" });
-//       }
-//       const isPasswordValid = bcrypt.compareSync(
-//         req.body.password,
-//         found.password
-//       );
-//       if (!isPasswordValid) {
-//         console.log("Bad login");
-//         return res.status(401).json({ message: "Bad login" });
-//       }
-//       const token = jwt.sign(
-//         { username: found.username, _id: found._id, userId: found.userId, role: found.role },
-//         process.env.SECRET_KEY,
-//         { expiresIn: "30d" }
-//       );
-//       console.log("TOKEN", token);
-//       res
-//         .cookie("token", token, {
-//           httpOnly: true,
-//           maxAge: 3600000,
-//         })
-//         .status(200)
-//         .json({
-//           message: "good login",
-//           token,
-//           found: {
-//             userId: found.userId,
-//             username: found.username,
-//             _id: found._id,
-//             email: found.email,
-//             cartItems: found.cartItems,
-//             wishlist: found.wishlist,
-//             role: found.role
-//           },
-//         });
-//       console.log({
-//         token,
-//         userId: found.userId,
-//         username: found.username,
-//         _id: found._id,
-//         email: found.email,
-//         cartItems: found.cartItems,
-//         role: found.role,
-//         wishlist: found.wishlist,
-//       });
-//     })
-//     .catch((error) => {
-//       console.error("Login error:", error);
-//       res.status(500).json({ msg: "Login failed" });
-//     });
-// };
 
 module.exports = {
   addToCart,

@@ -7,8 +7,11 @@ const Admin = require("../models/admin.Model");
 
 const adminLogin = (req, res) => {
     console.log("adminlogin", req.body);
-
-    Admin.findOne({ role: req.body.role })
+    if (!req.body.username || !req.body.password) {
+        console.error("Missing username or password");
+        return res.status(400).json({ message: "Missing username or password" });
+    }
+    Admin.findOne({username: req.body.username} )
         .then((admin) => {
             if (!admin) {
                 console.log("Admin not found");
@@ -16,7 +19,7 @@ const adminLogin = (req, res) => {
             }
             const isAdminPasswordValid = bcrypt.compareSync(
                 req.body.password,
-                admin.password
+               admin.password
             );
             if (!isAdminPasswordValid) {
                 console.log("Bad login");
@@ -45,8 +48,8 @@ const adminLogin = (req, res) => {
             },
         });
     console.log({
-        token,
-        adminId: adminId,
+        adminToken,
+        adminId: admin.adminId,
         username: admin.username,
         // _id: admin._id,
         email: admin.email,

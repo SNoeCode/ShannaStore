@@ -3,9 +3,13 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const User = require('../models/user.Model')
-const Admin = require('../models/admin.Model')
+
+const cookieParser = require("cookie-parser");
+
+
 const MiddleWare = (req, res, next) => {
-  
+  const token = req.cookies?.token;
+
   if (!req.headers.cookie) {
     console.log("NO COOKIE");
     return res.status(401).json({ msg: "No cookie provided" }); 
@@ -32,7 +36,7 @@ const MiddleWare = (req, res, next) => {
   }
 };
 const auth = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.cookies?.token;
   if (!token) {
     return res.status(401).json({ msg: "Unauthorized: No token provided" });
   }

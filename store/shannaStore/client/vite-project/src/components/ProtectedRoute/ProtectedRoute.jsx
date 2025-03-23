@@ -15,15 +15,17 @@ const ProtectedRoute = () => {
   useEffect(() => {
     console.log("Performing auth check...");
     axios
-      .get("http://localhost:3004/api/user/auth", {
+      .get("http://localhost:3004/api/authCheck", {
         withCredentials: true,
       })
       .then((res) => {
         if (res.data.msg === "valid token") {
           console.log("authedLogin", res.data);
           setAuthedUser(res.data.user); // Use the response user data
-          setCart(res.data.cartItems);  // Update cart
+          setCart(res.data.user.cartItems);  // Update cart
           dispatch({ type: "UPDATE_CART", payload: { cartItems: res.data.cartItems } });
+          navigate("account");
+      
         } else {
           console.log("Invalid token, redirecting...");
           navigate("/login");

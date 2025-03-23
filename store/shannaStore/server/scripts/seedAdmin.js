@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Admin = require('../models/admin.Model'); // Adjust this path as needed
 
-// Connect to MongoDB
+
 const connectDB = async () => {
     try {
         const mongoURI = 'mongodb://localhost:27017/store'; // MongoDB connection string directly
@@ -20,7 +20,6 @@ const connectDB = async () => {
     }
 };
 
-// Seed Admin User
 const seedAdmin = async () => {
     try {
         const existingAdmin = await Admin.findOne({ role: 'admin' });
@@ -29,7 +28,7 @@ const seedAdmin = async () => {
             return;
         }
 
-        // Define admin credentials directly
+       
         const username = 'admin';
         const email = 'admin@example.com';
         const password = 'securepassword';
@@ -53,6 +52,6 @@ const seedAdmin = async () => {
     }
 };
 
-// Start the script
+
 connectDB();
 

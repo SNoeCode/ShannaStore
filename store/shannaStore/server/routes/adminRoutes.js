@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 const express = require("express");
-const router = express.Router();
+const adminRouter = express.Router();
 const { adminLogin, isAdmin } = require("../controllers/admin.controller");
 
 
-const { auth, MiddleWare, adminAuth,isAuth } = require("../middleware/middleware");
+const { adminAuth} = require("../middleware/adminMiddleware");
 
-module.exports = (app) => {
-router.get('/admin', adminAuth, isAdmin)
-router.post("/admin/login", adminLogin);
-}
+adminRouter.get('/admin', adminAuth, isAdmin)
+adminRouter.post("/admin-login", adminLogin);
+module.exports = adminRouter;

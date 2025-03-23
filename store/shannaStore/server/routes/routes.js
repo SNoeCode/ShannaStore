@@ -17,7 +17,7 @@ const {
   Logout,
   Google,
 } = require("../controllers/user.Controller");
-const { auth, MiddleWare, adminAuth } = require("../middleware/middleware");
+const { auth, MiddleWare } = require("../middleware/middleware");
 
 
   router.post("/api/signup", Signup);
@@ -27,14 +27,14 @@ const { auth, MiddleWare, adminAuth } = require("../middleware/middleware");
 
 
   router.post("/login", Login);
-  router.post("/api/logout", MiddleWare, Logout);
-  router.post("/api/:userId/saveCart", MiddleWare, saveCart);
-  router.get("/user/auth", MiddleWare, AuthCheck);
+  router.post("/logout", MiddleWare, Logout);
+  // router.post("/api/:userId/saveCart", MiddleWare, saveCart);
+  // router.get("/user/auth", auth, AuthCheck);
 
+router.get("/authcheck", auth, AuthCheck);
+  router.put("/cart/update/:userId", auth, updateCartItems);
 
-  router.put("/api/cart/update/:userId", auth, updateCartItems);
-
-  router.delete("/api/remove/:userId", auth, removeCartItem);
+  router.delete("/remove/:userId", auth, removeCartItem);
 
   // router.get('/api/admin', adminAuth, isAdmin)
   // router.post("/api/admin-login", AdminLogin);

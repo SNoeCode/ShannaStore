@@ -15,21 +15,21 @@ const ProtectedAdminRoute = () => {
         withCredentials: true,
       })
       .then((res) => {
-        if (res.data.msg === "validated" && res.data.role === "admin") {
-          console.log("authedLogin", res.data);
+        if (res.data.msg === "validated") {
+          console.log("adminLogin", res.data);
           setAdmin(res.data.admin); 
         
         } else {
           console.log("Invalid token, redirecting...");
-          navigate("admin/login");
+          navigate("/admin-login");
         }
       })
       .catch((err) => {
         console.error("Error during admin login:", err);
-        navigate("/admin/login"); 
+        navigate("/admin-login"); 
       })
       .finally(() => setLoading(false));
-    }, [setAuthedUser]);
+    }, [setAdmin]);
     if (loading) {
       return <div>Loading...</div>;
     }

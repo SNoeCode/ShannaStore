@@ -18,7 +18,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
 import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
-import ProtectedAdminRoute from './components/ProtectedRoute/ProtectedAdminRoute';
+import ProtectedAdminRoute from './admin/AdminLogin/ProtectedAdminRoute';
 import Dashboard from "./admin/DashBoard/Dashboard";
 import AdminLogin from "./admin/AdminLogin/AdminLogin";
 import { AdminProvider } from "./context/adminContext";

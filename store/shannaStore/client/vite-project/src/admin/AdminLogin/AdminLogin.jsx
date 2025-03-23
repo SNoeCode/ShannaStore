@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useContext, useState } from "react";
 import axios from 'axios';
+import "./AdminLogin.css"
 import { AdminContext } from "../../context/adminContext";
 
 const AdminLogin = () => {
@@ -16,7 +17,7 @@ const AdminLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3004/admin/login",
+        "http://localhost:3004/admin/admin-login",
         adminCredentials,
         {
           withCredentials: true,
@@ -24,7 +25,7 @@ const AdminLogin = () => {
       );
 
     
-      if (response.data.role === "admin") {
+      if (response.data.admin.role === "admin") {
         setAdmin(response.data);
         navigate("/admin/"); 
       } else {

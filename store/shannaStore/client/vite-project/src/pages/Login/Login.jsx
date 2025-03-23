@@ -98,9 +98,9 @@ const Login = () => {
       );
 
       console.log("res", loginResponse.data);
-      const user = loginResponse.data.found;
-      const authToken = loginResponse.data.found.token;
-      setCart(loginResponse.data.found.cartItems);
+      const user = loginResponse.data.user
+      const authToken = loginResponse.data.user.token;
+      setCart(loginResponse.data.user.cartItems);
 
       setAuthedUser(user);
       localStorage.setItem("role", user.role);
