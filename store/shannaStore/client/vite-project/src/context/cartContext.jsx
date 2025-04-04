@@ -15,6 +15,7 @@ export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const { authedUser,updatedAuthedUser } = useContext(UserContext);
+  
   const getLocalCartItems = () => {
     const storedCartItems = localStorage.getItem("cartItems");
     if (!storedCartItems || storedCartItems === "undefined") {
@@ -30,6 +31,8 @@ export const CartProvider = ({ children }) => {
   const initialState = {
     userId: authedUser?.userId || null,
     cartItems: Array.isArray(getLocalCartItems()) ? getLocalCartItems() : [],
+    // cartItems:[],
+
     isCartOpen: false,
     loading: false,
   };
@@ -55,17 +58,27 @@ export const CartProvider = ({ children }) => {
     
     const token = localStorage.getItem('authedUser?.token')
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+  //   if (!localStorage.getItem("cartItems")) {
+  //     localStorage.setItem("cartItems", JSON.stringify([]));
+  // }
+  
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
   }, [state.cartItems]);
   useEffect(() => {
     if (authedUser?.userId && authedUser.token) {
       fetchCart(authedUser.userId, authedUser.token);
     }
   }, [authedUser]);
-
+  
+  useEffect(() => {
+    if (state.cartItems.length > 0) {
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+    }
+  }, [state.cartItems]);
+  // 
   const fetchCart = async (userId) => {
     if (!userId) return;
-
+    const token = authedUser?.token || localStorage.getItem("token");
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
@@ -90,7 +103,27 @@ export const CartProvider = ({ children }) => {
       dispatch({ type: "SET_LOADING", payload: false });
     }
   };
+//   const fetchCart = async () => {
+//     try {
+//         const response = await fetch("YOUR_BACKEND_API/cart");
+        
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! Status: ${response.status}`);
+//         }
 
+//         const data = await response.json();
+        
+//         if (!data.cartItems) {
+//             console.warn("No cart items found in response:", data);
+//             return;
+//         }
+
+//         dispatch({ type: "SET_CART", payload: data.cartItems });
+
+//     } catch (error) {
+//         console.error("Error fetching cart:", error);
+//     }
+// };
   const updateCartItemQuantity = async (productId, userId, quantity) => {
     if (!userId || typeof userId !== "string" || userId.length !== 24) {
       return;
@@ -109,17 +142,26 @@ export const CartProvider = ({ children }) => {
             Authorization: `Bearer ${
               authedUser?.token || localStorage.getItem("token")
             }`,
-          },
-          withCredentials: true,
-        }
+            withCredentials: true,
+          }
+        },
+        //  {
+        //   headers: {
+        //     Authorization: `Bearer ${
+        //       token
+        //     }`,
+        //   },
+        //   withCredentials: true,
+        // }
       );
 
       // const updatedCartItems = consolidateCartItems(response.data.cartItems);
       const updatedCartItems = response.data.cartItems;
       // dispatch({ type: "SET_CART_ITEMS", payload: updatedCartItems });
+
       dispatch({ type: "SET_CART_ITEMS", payload: updatedCartItems });
-      dispatch({ type: "INCREMENT", payload: productId });
-      dispatch({ type: "DECREMENT", payload: productId });
+      // dispatch({ type: "INCREMENT", payload: productId });
+      // dispatch({ type: "DECREMENT", payload: productId });
       // dispatch({ type: "REMOVE_FROM_CART", payload: productId });
     } catch (error) {
       console.error("Error updating cart item:", error);

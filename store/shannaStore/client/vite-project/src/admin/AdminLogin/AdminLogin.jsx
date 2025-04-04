@@ -2,14 +2,14 @@ import { useNavigate } from "react-router-dom";
 import React, { useContext, useState } from "react";
 import axios from 'axios';
 import "./AdminLogin.css"
-import { AdminContext } from "../../context/adminContext";
+import { AdminContext } from "../../context/AdminContext";
 
 const AdminLogin = () => {
   const [adminCredentials, setAdminCredentials] = useState({
-    username: "",
-    password: "",
+    admin_username: "",
+    admin_password: "",
   });
-  const { setAdmin } = useContext(AdminContext); 
+  const { setUserAdmin } = useContext(AdminContext); 
   const navigate = useNavigate(); 
 
   
@@ -17,7 +17,7 @@ const AdminLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3004/admin/admin-login",
+        "http://localhost:3004/api/admin-login",
         adminCredentials,
         {
           withCredentials: true,
@@ -26,7 +26,10 @@ const AdminLogin = () => {
 
     
       if (response.data.admin.role === "admin") {
-        setAdmin(response.data);
+        setUserAdmin(response.data);
+    const adminUsername= localStorage.setItem("adminUsername", response.data.adminUsername);
+    const adminToken =    localStorage.setItem("adminToken", response.data.adminToken);   
+      const adminRole =  localStorage.setItem("adminRole", response.data.role);
         navigate("/admin/"); 
       } else {
         alert("You are not authorized to access this page.");
@@ -48,9 +51,9 @@ const AdminLogin = () => {
           <input
             id="admin-username"
             type="text"
-            value={adminCredentials.username}
+            value={adminCredentials.admin_username}
             onChange={(e) =>
-              setAdminCredentials({ ...adminCredentials, username: e.target.value })
+              setAdminCredentials({ ...adminCredentials, admin_username: e.target.value })
             }
             required
           />
@@ -60,9 +63,9 @@ const AdminLogin = () => {
           <input
             id="admin-password"
             type="password"
-            value={adminCredentials.password}
+            value={adminCredentials.admin_password}
             onChange={(e) =>
-              setAdminCredentials({ ...adminCredentials, password: e.target.value })
+              setAdminCredentials({ ...adminCredentials, admin_password: e.target.value })
             }
             required
           />

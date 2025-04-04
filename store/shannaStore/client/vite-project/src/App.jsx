@@ -19,9 +19,9 @@ import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
 import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
 import ProtectedAdminRoute from './admin/AdminLogin/ProtectedAdminRoute';
-import Dashboard from "./admin/DashBoard/Dashboard";
 import AdminLogin from "./admin/AdminLogin/AdminLogin";
-import { AdminProvider } from "./context/adminContext";
+import AdminDashboard from "./admin/AdminDashboard/AdminDashboard";
+
 const App = () => {
   const [username, setUsername] = useState(null);
   const [authedUser, setAuthedUser] = useState(null);
@@ -34,41 +34,52 @@ const App = () => {
 
   return (
     <>
-        <AdminProvider>
-      <Navbar />
-      <ShoppingCart />
-      <Routes>
-        
-        {/* <Route path="/login" element={<Login />} /> */}
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin/" element={<ProtectedAdminRoute />}>
-            <Route path="dashboard" element={<Dashboard />} />
-          </Route>
-      
+    
+        <Navbar />
+        <ShoppingCart />
+        <Routes>
 
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="categories/:category" element={<CategoriesPage />} />
-        <Route path="product-detail/:id" element={<ProductDetails />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/auth/" element={<ProtectedRoute />}>
-          <Route path="account" element={<Account />} />
-        </Route>
-        <Route path="contact-us" element={<ContactUs />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/checkout" element={<Checkout />} />
-      </Routes>
-      <div
-        style={{
-          // minHeight: "50vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
+          {/* <Route path="/login" element={<Login />} /> */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin/*" element={<ProtectedAdminRoute />}>
+            <Route path="admin-dashboard" element={<AdminDashboard />} />
+          </Route>
+
+
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="categories/:category" element={<CategoriesPage />} />
+          <Route path="product-detail/:id" element={<ProductDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/auth/*" element={<ProtectedRoute />}>
+            <Route path="account" element={<Account />} />
+            {/* <Route path="cart" element={<Cart />} /> */}
+
+          </Route>
+          <Route path="/auth/*" element={<ProtectedRoute />}>
+          <Route path="payment" element={<Payment />} />
+
+         
+          </Route>
+          <Route path="/auth/*" element={<ProtectedRoute />}>
+            <Route path="my-cart" element={<Cart />} />
+        
+          </Route>
+        
+          <Route path="contact-us" element={<ContactUs />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/checkout" element={<Checkout />} />
+        </Routes>
+        <div
+          style={{
+            // minHeight: "50vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
         />
 
-      <Footer />
-        </AdminProvider>
+        <Footer />
+  
     </>
   );
 };

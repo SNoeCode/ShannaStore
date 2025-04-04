@@ -11,7 +11,18 @@ const Cart = () => {
   return (
     <>
     <div className="cart-items-container">
+      <br/>
+      <br/>
+      <br/>
+
+
+      <br/>
+      <br/>
+
+      <br/>
+      <br/>
     <h1 className="h1cart">Cart Items</h1>
+    
       
       {cartItems.length > 0 ? (
         cartItems.map((item) => (
@@ -24,6 +35,7 @@ const Cart = () => {
         <p>No items in the cart.</p>
       )}
       </div>
+      <h2>SHnanna Noe</h2>
     </>
   );
 };

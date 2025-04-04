@@ -30,33 +30,94 @@ const cartReducer = (state, action) => {
         cartItems: action.payload.cartItems
       
       };
-    
-    case "ADD_ITEM":
+  //   case "UPDATE_CART":
+  //     console.log("Updating cart with items:", action.payload.cartItems); 
+  // return {
+  //   ...state,
+  //   cartItems: Array.isArray(action.payload.cartItems) 
+  //   ? action.payload.cartItems 
+  //   : [], // Fallback to an empty array
+  // };
+
+    // case "ADD_ITEM":
      
-      if (!state.cartItems) {
-        state.cartItems = [];
-      }
-      const existingItem = state.cartItems.findIndex(
-        (product) => product.productId === action.payload.productId
-      );
-      if (existingItem) {
+    //   if (!state.cartItems) {
+    //     state.cartItems = [];
+    //   }
+    //   const existingItem = state.cartItems.findIndex(
+    //     (product) => product.productId === action.payload.productId
+    //   );
+    //   if (existingItem !== -1) {
       
-        return {
-          ...state,
-          cartItems: state.cartItems.map((product) =>
-            product.productId === action.payload.productId
-              ? { ...product, quantity: product.quantity + 1 }
-              : product
-          ),
-        };
-      } else {
+    //     return {
+    //       ...state,
+    //       cartItems: state.cartItems.map((product) =>
+    //         product.productId === action.payload.productId
+    //           ? { ...product, quantity: product.quantity + 1 }
+    //           : product
+    //       ),
+    //     };
+    //   } else {
       
-        return {
-          ...state,
-          cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+    //     return {
+    //       ...state,
+    //       cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
        
-      };
-      }
+    //   };
+    //   }
+  //   case "ADD_ITEM":
+  // if (!Array.isArray(state.cartItems)) {
+  //   return {
+  //     ...state,
+  //     cartItems: [{ ...action.payload, quantity: 1 }],
+  //   };
+  // }
+
+  // const existingItemIndex = state.cartItems.findIndex(
+  //   (product) => product.productId === action.payload.productId
+  // );
+
+  // if (existingItemIndex !== -1) {
+  //   return {
+  //     ...state,
+  //     cartItems: state.cartItems.map((product, index) =>
+  //       index === existingItemIndex
+  //         ? { ...product, quantity: product.quantity + 1 }
+  //         : product
+  //     ),
+  //   };
+  // } else {
+  //   return {
+  //     ...state,
+  //     cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+  //   };
+  // }
+  case "ADD_ITEM":
+     
+  if (!state.cartItems) {
+    state.cartItems = [];
+  }
+  const existingItem = state.cartItems.findIndex(
+    (product) => product.productId === action.payload.productId
+  );
+  if (existingItem) {
+  
+    return {
+      ...state,
+      cartItems: state.cartItems.map((product) =>
+        product.productId === action.payload.productId
+          ? { ...product, quantity: product.quantity + 1 }
+          : product
+      ),
+    };
+  } else {
+  
+    return {
+      ...state,
+      cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+   
+  };
+  }
     case "REMOVE_FROM_CART":
       return {
         ...state,

@@ -94,10 +94,18 @@ try {
     .then((response) => {
       setData(response.data)
       console.log("Successfully added to backend cart:", response.data);
-      console.log("response.data.product",response.data)
+      console.log("response.data.product",response.data.product)
+      addItem(newItem);
+      // const addItem = (product) => {
+      //   dispatch({ type: "ADD_ITEM", payload: product });
+      // // };
       addItem(newItem);
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
-     
+      // dispatch({ type: "UPDATE_CART", payload: response.data });
+      // localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      // localStorage.setItem("cartItems", JSON.stringify([...state.cartItems, newItem]));
+      // localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
+    //  addItem(newItem)
      
     })
     .catch((error) => {

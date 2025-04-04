@@ -1,42 +1,57 @@
 const jwt = require("jsonwebtoken");
 const express = require("express");
-// const app = express();
-// app.use(express.json());
+const app = express();
+const cookieParser = require('cookie-parser')
+app.use(express.json());
+
+app.use(cookieParser())
+
 const Admin = require('../models/admin.Model')
-//  const isAdmin = async (req, res, next) => {
+
+// const adminAuth = (req, res, next) => {
+//   const adminToken = req.cookies.adminToken;
+
+//   if (!adminToken) {
+//       return res.status(401).json({ msg: "Unauthorized: No token provided" });
+//   }
+
 //   try {
-//     const admin = await Admin.findById(req.body.role);
-//     if (admin.role !== "admin") {
-//       return res.status(401).send({
-//         success: false,
-//         message: msg === "validated",
-//       });
-//     } else {
-//       next();
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(401).send({
-//       success: false,
-//       error,
-//       message: "Error in admin middelware",
-//     });
+//       const adminDecoded = jwt.verify(adminToken, process.env.ADMIN_KEY);
+//       req.admin = adminDecoded; // Attach admin info to request
+//       console.log("Admin authenticated:", adminDecoded);
+//       return res.json({ msg: "validated", admin: adminDecoded, adminToken });
+//     } catch (err) {
+//     next();
+//       console.error("Token verification failed:", err);
+//       return res.status(401).json({ msg: "Unauthorized: Invalid token" });
 //   }
 // };
 
 const adminAuth = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ msg: "Unauthorized: No token provided" });
-  }
+ 
+ 
+  const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-  try {
-    const decoded = jwt.verify(adminToken, process.env.ADMIN_KEY)
-    req.admin = decoded; // Attach decoded user info to request
-    next();
-  } catch (err) {
-    console.error("Token verification failed:", err);
-    res.status(401).json({ msg: "Unauthorized: Invalid token" });
+  console.log("Received token:", adminToken); // Debugging
+  
+  if (!adminToken) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
-};
-module.exports = {adminAuth};
+  
+  try {
+    const adminDecoded = jwt.verify(adminToken, process.env.ADMIN_KEY);
+    req.admin = adminDecoded; // Attach admin info to request
+      console.log("Admin authenticated:", adminDecoded);
+
+      next(); // ✅ Pass execution to the next middleware
+    } catch (err) {
+      console.error("Token verification failed:", err);
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+  };
+  module.exports = {adminAuth};
+  // const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+
+ // if (!adminToken) {
+ //     return res.status(401).json({ message: "Unauthorized: No token provided" });
+ // }
