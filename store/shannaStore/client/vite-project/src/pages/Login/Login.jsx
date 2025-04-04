@@ -43,7 +43,7 @@ const Login = () => {
 
     let cartItems = [];
     const storedCartItems = localStorage.getItem("cartItems");
-    if (storedCartItems && storedCartItems !== "undefined") {
+    if (!storedCartItems && storedCartItems == "undefined") {
       try {
         cartItems = JSON.parse(storedCartItems);
         cartItems = Array.isArray(cartItems) ? cartItems : [];

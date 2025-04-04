@@ -57,13 +57,11 @@ export const CartProvider = ({ children }) => {
     const [state, dispatch] = useReducer(cartReducer, initialState);
     
     const token = localStorage.getItem('authedUser?.token')
-  useEffect(() => {
-  //   if (!localStorage.getItem("cartItems")) {
-  //     localStorage.setItem("cartItems", JSON.stringify([]));
-  // }
-  
+    useEffect(() => {
+      console.log("Saving cart items:", state.cartItems);
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-  }, [state.cartItems]);
+    }, [state.cartItems]);
+    
   useEffect(() => {
     if (authedUser?.userId && authedUser.token) {
       fetchCart(authedUser.userId, authedUser.token);

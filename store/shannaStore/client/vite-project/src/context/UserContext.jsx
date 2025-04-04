@@ -7,11 +7,11 @@ export const UserProvider = ({ children }) => {
   
   
   
-  // const initialUser = {
-  //   //if there is a usernamr in local storafe it get username if no usernamr defaults to null
-  //   username: localStorage.getItem("username") || "",
-  //   token: localStorage.getItem("token") || null,
-  // };
+  const initialUser = {
+    //if there is a usernamr in local storafe it get username if no usernamr defaults to null
+    username: localStorage.getItem("username") || "",
+    token: localStorage.getItem("token") || null,
+  };
   // const [authedUser, setAuthedUser] = useState(initialUser);
   //whhen compound mounts(loads) it sync state with local storage
     useEffect(() => {

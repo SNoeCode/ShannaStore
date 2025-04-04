@@ -36,15 +36,7 @@ const Signup = (req, res) => {
 
         .then((created) => {
           console.log("User created:", created);
-
-
-          // const token = jwt.sign(
-          //   { username: created.username, id: created._id,userId: created.userId },
-          //   process.env.SECRET_KEY,
-          //   { expiresIn: "1h" }
-          // )
-          //sends success response
-          res.status(201).json({
+       res.status(201).json({
             msg: "User created successfully",
             username: created.username,
             id: created._id,
@@ -92,11 +84,7 @@ const Logout = async (req, res) => {
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    // if (!req.headers.authorization) {
-    //   return res
-    //     .status(401)
-    //     .json({ message: "Unauthorized: No token provided" });
-    // }
+   
     res.clearCookie("token", {
       httpOnly: true,
       secure: true,
@@ -122,64 +110,24 @@ const Login = (req, res) => {
       }
       if (bcrypt.compareSync(req.body.password, user.password)) {
         console.log("Good Login");
-        // const isPasswordValid = bcrypt.compareSync(
-        //   req.body.password,
-        //   user.password
-        // );
-        // if (!isPasswordValid) {
-        //   console.log("Bad login");
-        //   return res.status(401).json({ message: "Bad login" });
-        // }
+      
         const token = jwt.sign(
           { username: user.username, id: user._id, userId: user.userId, cartItems: user.cartItems },
           process.env.SECRET_KEY,
           { expiresIn: "30d" }
         );
         console.log("TOKEN", token);
-        // res
-        //   .cookie("token", token, {
-        //     httpOnly: true,
-        //     maxAge: 3600000,
-        //   })
-          // const token = jwt.sign(
-          //   { username: created.username, id: created._id,userId: created.userId },
-          //   process.env.SECRET_KEY,
-          //   { expiresIn: "1h" }
-          // )
-        //   .status(200)
-        //   .json({
-        //     token,
-        //     user: {
-        //       userId: user.userId,
-        //       username: user.username,
-        //       _id: user._id,
-        //       email: user.email,
-        //       cartItems: user.cartItems,
-        //       wishlist: user.wishlist,
-        //       role: user.role
-        //     },
-        //   });
+       
         res
           .cookie("token", token, {
             httpOnly: true,
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
           })
           .status(200)
-          // .json({
-          //   token,
-          //   user: {
-          //     token: token,
-          //     userId: user.userId,
-          //     username: user.username,
-          //     id: user._id,
-          //     email: user.email,
-          //     cartItems: user.cartItems || [],
-          //     wishlist: user.wishlist || [],
-          //     role: user.role || "user",
-          //   },
-          // });
+         
           .json({
             msg: "good login", 
+            token,
            user:{ 
             userId: user.userId,
             username: user.username,
@@ -189,7 +137,7 @@ const Login = (req, res) => {
             wishlist: user.wishlist || [],
             role: user.role || "user",
            },
-           token:token,
+          //  token:token,
           });
         console.log({
           token,
@@ -234,29 +182,7 @@ const AuthCheck = (req, res) => {
     }
   }
 }
-//     const token = req.cookies.token;
-//     console.log("token:", token);
 
-//     let decoded;
-//     try {
-//       decoded = jwt.verify(token, process.env.SECRET_KEY);
-//     } catch (err) {
-//       return res.json({ msg: "bad token" });
-//     }
-//     console.log("decoded:", decoded);
-
-//     User.findById({ username: decoded.username, _id: decoded._id, userId: decoded.userId })
-//       .then((found) => {
-//         console.log("found", found);
-//         res.json({ msg: "valid token", found, token });
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         res.status(500).json({ message: "Server error" });
-//       });
-//     console.log("AUTH CHECK finished");
-//   }
-// };
 
 const saveCart = (req, res) => {
   const { userId, cartItems } = req.body;
@@ -290,7 +216,17 @@ const saveCart = (req, res) => {
 const addToCart = async (req, res) => {
   console.log("Request Body:", req.body); //
   // const { userId} = req.params;
+  
+
   const { userId, _id } = req.params;
+
+  
+  const user = await User.findOne(userId);
+if (!user) {
+  return res.status(404).json({ message: "User not found" });
+}
+
+  
   const { productId, title, price, description, category, image, quantity } =
     req.body;
 

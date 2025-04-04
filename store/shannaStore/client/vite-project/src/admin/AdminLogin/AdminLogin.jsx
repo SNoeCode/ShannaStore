@@ -30,7 +30,7 @@ const AdminLogin = () => {
     const adminUsername= localStorage.setItem("adminUsername", response.data.adminUsername);
     const adminToken =    localStorage.setItem("adminToken", response.data.adminToken);   
       const adminRole =  localStorage.setItem("adminRole", response.data.role);
-        navigate("/admin/"); 
+        navigate("/admin/admin-dashboard"); 
       } else {
         alert("You are not authorized to access this page.");
       }

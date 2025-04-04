@@ -66,19 +66,20 @@ const adminLogin = (req, res) => {
 }
 const adminLogout = async (req, res) => {
     console.log(req.body);
-  
+    console.log("Cookies received in logout:", req.cookies);
+
     try {
-      const adminToken = req.cookies.adminToken;
-      if (!adminToken) {
-        return res
-          .status(401)
-          .json({ message: "Unauthorized: No token provided" });
-      }
-      // if (!req.headers.authorization) {
-      //   return res
-      //     .status(401)
-      //     .json({ message: "Unauthorized: No token provided" });
-      // }
+    //   const adminToken = req.cookies.adminToken;
+    //   if (!adminToken) {
+    //     return res
+    //       .status(401)
+    //       .json({ message: "Unauthorized: No token provided" });
+    //   }
+
+    const adminToken = req.cookies.adminToken || req.cookies.admintoken;
+    if (!adminToken) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
       res.clearCookie("adminToken", {
         httpOnly: true,
         secure: true,
@@ -93,32 +94,7 @@ const adminLogout = async (req, res) => {
   };
 
 
-// const isAdmin = async (req, res, next) => {
-    
-//     const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
-    
-// console.log("Admin token received in middleware:", adminToken);  // Debugging
-// console.log("admin CHECK, cookies:", req.cookies);
-// if (!req.cookies.adminToken) {
-//     console.log("No admin cookie found.");
-//     return res.status(401).json({ message: "Unauthorized: No cookie provided" });
 
-// } else {
-//     console.log("$$$$", req.headers.cookie.split("="));
-//     //accessing cookies in ccokie header and then extracting token value out of it  
-//     const split = req.headers.cookie.split("=");
-//     console.log("SPILT", split[1]);
-//     // Verify JWT token from cookie
-//     const adminDecoded = jwt.verify(split[1], process.env.ADMIN_KEY);
-//     console.log("admin decoded", adminDecoded);
-//     //if no user name decoded send back response "bad login"
-//     if (!adminDecoded.admin_username) {
-//         res.json({ msg: "bad token" });
-//         //good response send "valid tojen"
-//     } else {
-//         res.json({ msg: "validated",adminDecoded });
-//     }
-// }
 const isAdmin = async (req, res, next) => {
     try {
         const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
@@ -154,33 +130,3 @@ const isAdmin = async (req, res, next) => {
 
 module.exports = { adminLogin, isAdmin,adminLogout }
 
-
-
-
-// try {
-    
-//     // const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
-
-//     // if (!adminToken) {
-//     //     return res.status(401).send({ success: false, message: "Unauthorized: No token provided" });
-//     // }
-
-//     // const adminDecoded = jwt.verify(adminToken, process.env.ADMIN_KEY);
-
-//     // Ensure the decoded token contains admin privileges
-//     if (adminDecoded.admin_username == process.env.ADMIN_USERNAME) {
-       
-
-//     // req.admin = adminDecoded; // Attach admin details to request object
-//     console.log("Admin validated:", adminDecoded)
-//     res.json({
-//         msg: "validated",
-//         adminToken,
-//         adminDecoded   
-//      } )
-//     next();
-//     }
-// } catch (error) {
-//     console.error("Error in admin middleware:", error);
-//     res.status(401).send({ success: false, message: "Invalid or expired token" });
-//}\\\

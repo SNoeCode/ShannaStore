@@ -1,0 +1,12 @@
+.admin-dashboard{
+    background-color: green;
+    width: 100%;
+    height: 100vh;
+    margin-top: 450px;
+}
+.dashboard h1{
+    color: purple;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 30px;
+}

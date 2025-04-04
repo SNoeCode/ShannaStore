@@ -30,14 +30,22 @@ const Admin = require('../models/admin.Model')
 const adminAuth = (req, res, next) => {
  
  
-  const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+  // const adminToken = req.cookies.adminToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-  console.log("Received token:", adminToken); // Debugging
+  // console.log("Received token:", adminToken); // Debugging
   
-  if (!adminToken) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-  
+  // if (!adminToken) {
+  //     return res.status(401).json({ message: "Unauthorized: No token provided" });
+  // }
+  const adminToken = req.cookies.adminToken || req.cookies.admintoken || 
+  (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+
+console.log("Received token in middleware:", adminToken); // Debugging
+
+if (!adminToken) {
+  return res.status(401).json({ message: "Unauthorized: No token provided" });
+}
+
   try {
     const adminDecoded = jwt.verify(adminToken, process.env.ADMIN_KEY);
     req.admin = adminDecoded; // Attach admin info to request

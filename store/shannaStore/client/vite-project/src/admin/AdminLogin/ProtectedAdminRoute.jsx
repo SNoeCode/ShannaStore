@@ -50,16 +50,23 @@ const response =
            withCredentials: true,
       
           })
-          console.log("adminLogin", response.data)
-  .then((response) => {
-      if (response.data.msg === "validated") {
-          console.log("adminDMINLogin", response.data.admin);
-
+          .then((response) => {
+    console.log("adminLogin", response.data)
+      if (response.data.message === "validated") {
+          // console.log("adminDMINLogin", response.data.admin);
+          console.log("adminDMINLogin", response.data.adminDecoded);
           setUserAdmin({
-              adminId: response.data.adminId,
-              adminUsername: response.data.adminUsername,
-              adminToken: response.data.adminToken,
+            adminId: response.data.adminDecoded.adminId,
+            adminUsername: response.data.adminDecoded.admin_username,
+            adminToken: adminToken,
           });
+  
+
+          // setUserAdmin({
+          //     adminId: response.data.adminId,
+          //     adminUsername: response.data.adminUsername,
+          //     adminToken: response.data.adminToken,
+          // });
 
       } else {
           console.log("Invalid token, redirecting...");

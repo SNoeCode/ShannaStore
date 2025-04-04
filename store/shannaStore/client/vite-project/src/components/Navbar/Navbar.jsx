@@ -10,7 +10,7 @@ import { AdminContext } from "../../context/AdminContext";
 
 // import consolidateCartItems from '/src/utils/consolidateCartItems.js';
 const Navbar = () => {
-  const { cartItems, addItem, fetchCart, toggleCart, dispatch, clearCart } =
+  const { state,cartItems, addItem, fetchCart, toggleCart, dispatch, clearCart } =
     useContext(CartContext);
   const { authedUser, setAuthedUser, updatedAuthedUser } =
     useContext(UserContext);
@@ -45,7 +45,11 @@ const Navbar = () => {
   console.log("Cart Quantity:", cartQuantity);
   console.log("Cart Items Type:", typeof cartItems);
 console.log("Cart Items Value:", cartItems);
-  localStorage.setItem("cartItems", JSON.stringify([]));
+  // localStorage.setItem("cartItems", JSON.stringify([]));
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+  }, [state.cartItems]);
+  
 fetchCart()
   const navigate = useNavigate();
 
@@ -96,6 +100,8 @@ fetchCart()
     }
   };
   const handleAdminLogout = async () => {
+    
+
     try {
       const adminToken = localStorage.getItem("adminToken");
       if (!adminToken) {
@@ -109,11 +115,12 @@ fetchCart()
       const response = await axios.post(
         `http://localhost:3004/api/admin-logout`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            "Content-Type": "application/json",
-          },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${adminToken}`,
+        //     "Content-Type": "application/json",
+          // },
+          {
           withCredentials: true,
         }
       );
@@ -124,7 +131,7 @@ fetchCart()
 
      
       localStorage.removeItem("adminUsername");
-
+      localStorage.removeItem("adminId");
       localStorage.removeItem("adminToken");
     
       setUserAdmin(null);

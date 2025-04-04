@@ -1,8 +1,13 @@
+import React from "react";
 
+import "./AdminDashboard.css";
 const AdminDashboard = () => {
-    const [authedAdmin] = useAuth();
+
     return (
-     <div>Admin dashboard admin</div>
+        <>
+        <h1 className="dashboard">Admin Dashboard</h1>
+     <div className="admin-dashboard">Admin dashboard admin</div>
+        </>
     );
   };
   

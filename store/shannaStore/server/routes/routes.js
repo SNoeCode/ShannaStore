@@ -35,7 +35,7 @@ module.exports = (app) => {
 app.get("/api/authCheck", auth, AuthCheck);
   app.put("/api/cart/update/:userId", MiddleWare, updateCartItems);
 
-
+  app.post("/api/admin-logout", adminLogout);
   app.delete("/api/remove/:userId", auth, removeCartItem);
   // app.get("/api/admin", adminAuth, isAdmin);
   app.get("/api/admin", adminAuth, isAdmin);
@@ -62,7 +62,7 @@ app.get("/api/authCheck", auth, AuthCheck);
   //   }
   // });
   app.post("/api/admin-login", adminLogin);
-  app.post("/api/admin-logout", auth, adminLogout);
+  // app.post("/api/admin-logout", auth, adminLogout);
 
 }
 // module.exports = router;
