@@ -7,7 +7,6 @@ import "./ShoppingCart.css";
 const ShoppingCart = () => {
   const {
     isCartOpen,
-   
     toggleCart,
     updateCartItemQuantity,
     incrementItem,
@@ -23,9 +22,7 @@ dispatch,
 
   useEffect(() => {
     if (authedUser) {
-      // fetchCart(authedUser.userId, authedUser.token);
       fetchCart(authedUser._id, authedUser.token);
-      
     }
   }, [authedUser]);
 
@@ -150,3 +147,6 @@ const calculateTotal = () => {
 };
 
 export default ShoppingCart;
+
+
+

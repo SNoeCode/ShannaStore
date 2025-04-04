@@ -5,7 +5,7 @@ import { StrictMode } from "react";
 import "./index.css";
 
 import { CartProvider } from "./context/cartContext";
-import { AdminProvider } from "./context/adminContext";
+import { AdminProvider } from "./context/AdminContext.jsx";
 import { UserProvider } from "./context/UserContext";
 import { BrowserRouter } from "react-router-dom";
 

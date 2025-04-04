@@ -36,16 +36,16 @@ const Signup = (req, res) => {
 
         .then((created) => {
           console.log("User created:", created);
-       res.status(201).json({
+          res.status(201).json({
             msg: "User created successfully",
             username: created.username,
             id: created._id,
-                name: created.name,
+            name: created.name,
             email: created.email,
             role: created.role,
-        
+
             password: hashedPassword,
-        })
+          })
         })
         .catch((err) => {
           console.error(err);
@@ -84,7 +84,7 @@ const Logout = async (req, res) => {
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-   
+
     res.clearCookie("token", {
       httpOnly: true,
       secure: true,
@@ -110,34 +110,34 @@ const Login = (req, res) => {
       }
       if (bcrypt.compareSync(req.body.password, user.password)) {
         console.log("Good Login");
-      
+
         const token = jwt.sign(
           { username: user.username, id: user._id, userId: user.userId, cartItems: user.cartItems },
           process.env.SECRET_KEY,
           { expiresIn: "30d" }
         );
         console.log("TOKEN", token);
-       
+
         res
           .cookie("token", token, {
             httpOnly: true,
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
           })
           .status(200)
-         
+
           .json({
-            msg: "good login", 
+            msg: "good login",
             token,
-           user:{ 
-            userId: user.userId,
-            username: user.username,
-            id: user._id,
-            email: user.email,
-            cartItems: user.cartItems || [],
-            wishlist: user.wishlist || [],
-            role: user.role || "user",
-           },
-          //  token:token,
+            user: {
+              userId: user.userId,
+              username: user.username,
+              id: user._id,
+              email: user.email,
+              cartItems: user.cartItems || [],
+              wishlist: user.wishlist || [],
+              role: user.role || "user",
+            },
+            //  token:token,
           });
         console.log({
           token,
@@ -153,7 +153,7 @@ const Login = (req, res) => {
         console.log("Bad Login");
         res.status(400).json({ msg: "Invalid credentials" });
       }
-      })
+    })
     .catch((error) => {
       console.error("Login error:", error);
       res.status(500).json({ msg: "Login failed" });
@@ -170,15 +170,15 @@ const AuthCheck = (req, res) => {
     //accessing cookies in ccokie header and then extracting token value out of it  
     const split = req.headers.cookie.split("=");
     console.log("SPILT", split[1]);
-// Verify JWT token from cookie
+    // Verify JWT token from cookie
     const decoded = jwt.verify(split[1], process.env.SECRET_KEY);
     console.log("decoded", decoded);
-//if no user name decoded send back response "bad login"
+    //if no user name decoded send back response "bad login"
     if (!decoded.username) {
       res.json({ msg: "bad token" });
       //good response send "valid tojen"
     } else {
-      res.json({ msg: "valid token",decoded });
+      res.json({ msg: "valid token", decoded });
     }
   }
 }
@@ -213,20 +213,82 @@ const saveCart = (req, res) => {
     );
 };
 
+// const addToCart = async (req, res) => {
+//   console.log("Request Body:", req.body); //
+//   // const { userId} = req.params;
+
+
+//   const { userId } = req.params.userId;
+//   const { cartItems } = req.body;
+
+
+
+//   const user = await User.findOne({ userId });
+//   if (!user) {
+//     return res.status(404).json({ message: "User not found" });
+//   }
+
+
+//   const { productId, title, price, description, category, image, quantity } =
+//     req.body;
+
+//   try {
+//     // const decodedUserId = req.user.userId;
+
+//     console.log(`Product ID: ${productId}`);
+//     console.log(`Decoded User ID: ${decodedUserId}`);
+//     if (!productId || quantity <= 0) {
+//       return res.status(400).json({ message: "Invalid product data" });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(productId)) {
+//       return res.status(400).json({ message: "Invalid productId" });
+//     }
+
+//     // const user = await User.findOne( userId );
+//     const user = await User.findOne({ _id: userId });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const existingItem = user.cartItems.find(
+//       (item) => item.productId.toString() === productId
+//     );
+//     if (existingItem) {
+//       existingItem.quantity += quantity;
+//     } else {
+//       const newProduct = {
+//         productId,
+//         title,
+//         price,
+//         description,
+//         category,
+//         image,
+//         quantity,
+//       };
+
+//       user.cartItems.push({
+//         title,
+//         name: title,
+//         price,
+//         category,
+//         description,
+//         productId,
+//         quantity,
+//         image,
+//       });
+//     }
+
+//     await user.save();
+//     return res.json({ message: "Item added to cart", cartItems: user.cartItems });
+//   } catch (error) {
+//     console.error("Error in addToCart:", error);
+//     return res.status(500).json({ message: "Server error", error });
+//   }
+// };
 const addToCart = async (req, res) => {
   console.log("Request Body:", req.body); //
-  // const { userId} = req.params;
-  
-
   const { userId, _id } = req.params;
-
-  
-  const user = await User.findOne(userId);
-if (!user) {
-  return res.status(404).json({ message: "User not found" });
-}
-
-  
   const { productId, title, price, description, category, image, quantity } =
     req.body;
 
@@ -243,8 +305,7 @@ if (!user) {
       return res.status(400).json({ message: "Invalid productId" });
     }
 
-    // const user = await User.findOne({ userId });
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -256,7 +317,7 @@ if (!user) {
       existingItem.quantity += quantity;
     } else {
       const newProduct = {
-        productId,
+        productId: new mongoose.Types.ObjectId(),
         title,
         price,
         description,
@@ -271,20 +332,19 @@ if (!user) {
         price,
         category,
         description,
-        productId,
+        productId: new mongoose.Types.ObjectId(),
         quantity,
         image,
       });
     }
 
     await user.save();
-    return res.json({ message: "Item added to cart", cartItems: user.cartItems });
+    return res.json({ message: "Item added to cart", cart: user.cartItems });
   } catch (error) {
     console.error("Error in addToCart:", error);
     return res.status(500).json({ message: "Server error", error });
   }
 };
-
 
 const updateCartItems = async (req, res) => {
   console.log(req.body);
@@ -302,7 +362,7 @@ const updateCartItems = async (req, res) => {
     }
     // Find the item in the cart
     const itemIndex = user.cartItems.findIndex(
-      (item) => item.productId.toString() ===  productId.toString()
+      (item) => item.productId.toString() === productId.toString()
     );
 
     if (itemIndex !== -1) {
@@ -326,7 +386,7 @@ const updateCartItems = async (req, res) => {
       message: "Cart item updated",
       cartItems: user.cartItems,
     });
-    
+
   } catch (error) {
     console.error("Error updating cart item:", error);
     res.status(500).json({ error: "Server error", details: error.message });

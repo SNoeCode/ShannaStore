@@ -12,30 +12,35 @@ const ProtectedRoute = () => {
   const [loading, setLoading] = useState(true);
   const user = localStorage.getItem("user")
   const token = localStorage.getItem("user.token");
-   useEffect(() => {
-    console.log("Performing auth check...");
-    axios
-      .get("http://localhost:3004/api/authCheck", 
-       {
-          withCredentials: true,
-       })
+
+useEffect(() => {
+  console.log("Performing auth check...");
+
+  axios.get("http://localhost:3004/api/authCheck", { withCredentials: true })
     .then((res) => {
       if (res.data.msg === "valid token") {
-        setAuthedUser({ 
+        // Preserve cart items by merging existing ones if cart is empty
+        const storedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+        const newCartItems = res.data.cartItems && res.data.cartItems.length > 0 
+          ? res.data.cartItems 
+          : storedCart;
+
+        setAuthedUser({
           username: res.data.username,
           userId: res.data.userId,
-          token: res.data.token, 
+          token: res.data.token,
           id: res.data._id,
-          cartItems: res.data.cartItems
-        })
-        setCart(res.data.userId)
-        dispatch({ type: "UPDATE_CART", payload: { cartItems: res.data.cartItems || [] } });
-      dispatch({ type: "SET_CART_ITEMS", payload:{ cartItems: res.data.cartItems || [] }});
+          cartItems: newCartItems,
+        });
 
-        fetchCart();
-        
-        console.log("Authenticated user:", res.data); 
-    } else {
+        dispatch({
+          type: "UPDATE_CART",
+          payload: { cartItems: newCartItems },
+        });
+
+        localStorage.setItem("cartItems", JSON.stringify(newCartItems));
+        console.log("Authenticated user:", res.data);
+      } else {
         navigate("/login");
       }
     })
@@ -45,52 +50,10 @@ const ProtectedRoute = () => {
     })
     .finally(() => setLoading(false));
 }, []);
-
 if (loading) {
   return <div>Loading...</div>;
 }
 return <Outlet />;
 }
-
-
-
-// .then((res) => {
-//   if (res.data.msg === "valid token") {
-//     console.log("authedLogin", res.data);
-//     setAuthedUser({
-//       username: res.data.user.username,
-//       userId: res.data.user.userId,
-//       token: res.data.user.token, 
-//       role: res.data.user.role, 
-//     })// Update cart
-//     dispatch({ type: "UPDATE_CART", payload: { cartItems: res.data.cartItems } });
-//     navigate("/auth/account");
-//     // setAuthedUser(res.data.user); // Use the response user data
-//     // setCart(res.data.cartItems);
-// fetchCart();
-//   } else {
-//     console.log("Invalid token, redirecting...");
-//     navigate("/login");
-//   }
-//   })
-//   .catch((err) => {
-//     console.error("Error during auth check:", err);
-//     navigate("/login"); 
-//   })
-//   .finally(() => setLoading(false));
-// }, [setAuthedUser,navigate]);
-// if (loading) {
-//   return <div>Loading...</div>;
-// }
-// return (
-//   <Outlet/>
-// )
-// return authedUser ? (
-//   <Outlet />
-// ) : (
-//   <navigate to="account" replace />
-// );
-// };
-
 
 export default ProtectedRoute;

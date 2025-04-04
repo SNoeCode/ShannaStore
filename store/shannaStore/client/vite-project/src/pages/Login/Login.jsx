@@ -22,24 +22,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [cart, setCart] = useState({});
-  // useEffect(() => {
-
-  //   const username = localStorage.getItem("username");
-  //   const token = localStorage.getItem("token");
   
-      //   if (username) {
-      //     setAuthedUser({
-      //       userId:userId,
-      //             role,
-      //             id,
-      //             username,
-      //             token,
-      //             productId,
-      //             cartItems,
-      //             wishlist,
-      //     });
-      //   }
-      // }, []);
+
 
     let cartItems = [];
     const storedCartItems = localStorage.getItem("cartItems");
@@ -52,7 +36,18 @@ const Login = () => {
         console.error("Error parsing cartItems:", error);
       }
     }
-
+    useEffect(() => {
+      if (authedUser?.user?.cartItems && state.cartItems.length === 0) {
+        console.log("Setting cart from login response:", authedUser.user.cartItems);
+        dispatch({
+          type: "UPDATE_CART",
+          payload: { cartItems: authedUser.user.cartItems },
+        });
+    
+        localStorage.setItem("cartItems", JSON.stringify(authedUser.user.cartItems));
+      }
+    }, [authedUser]);
+    
     let wishlist = [];
     const storedWishlist = localStorage.getItem("wishlist");
     if (storedWishlist && storedWishlist !== "undefined") {

@@ -10,7 +10,7 @@ import { AdminContext } from "../../context/AdminContext";
 
 // import consolidateCartItems from '/src/utils/consolidateCartItems.js';
 const Navbar = () => {
-  const { state,cartItems, addItem, fetchCart, toggleCart, dispatch, clearCart } =
+  const { state,cartItems = [], addItem, fetchCart, toggleCart, dispatch, clearCart } =
     useContext(CartContext);
   const { authedUser, setAuthedUser, updatedAuthedUser } =
     useContext(UserContext);
@@ -18,34 +18,50 @@ const Navbar = () => {
     useContext(AdminContext);
     const token = localStorage.getItem("token");
     const adminToken = localStorage.getItem("adminToken");
+    // const cartQuantity = cartItems
+    // ? cartItems.reduce((total, item) => total + item.quantity, 0)
+    // : 0;
+
+    const cartQuantity = Array.isArray(cartItems)
+    ? cartItems.reduce((total, item) => total + (item.quantity || 0), 0)
+    : 0;
+    useEffect(() => {
+      if (authedUser?.user?.cartItems) {
+        console.log("Setting cart from login response:", authedUser.user.cartItems);
+        dispatch({
+          type: "UPDATE_CART",
+          payload: { cartItems: authedUser.user.cartItems },
+        });
+    
+        // Save to localStorage for persistence
+        localStorage.setItem("cartItems", JSON.stringify(authedUser.user.cartItems));
+      }
+    }, [authedUser]);
+    
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  // const cartQuantity = cartItems ? cartItems.length : 0;
   const [products, setProducts] = useState([]);
   const username = localStorage.getItem("username");
   const isUserSignedIn = localStorage.getItem("token");
   const isAdminSignedIn = localStorage.getItem("adminToken");
   const adminUsername = localStorage.getItem("adminUsername");
 
-  const cartQuantity = Array.isArray(cartItems)
-  ? cartItems.reduce((total, item) => total + item.quantity, 0)
-  : 0;
 
-  // const cartQuantity = cartItems ? cartItems.length : 0;
+  console.log("Cart Items in Navbar:", cartItems);
+
+
   useEffect(() => {
     fetchCart();
   }, [authedUser]); 
   console.log("Cart Items in Navbar:", cartItems);
-  // const cartQuantity = cartItems
-  //   ? cartItems.reduce((total, item) => total + item.quantity, 0)
-  //   : []
-  // const cartQuantity = (cartItems || []).reduce((total, item) => total + item.quantity, 0);
+
   console.log("Cart Quantity:", cartQuantity);
   console.log("Cart Items Type:", typeof cartItems);
 console.log("Cart Items Value:", cartItems);
-  // localStorage.setItem("cartItems", JSON.stringify([]));
+
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
   }, [state.cartItems]);
@@ -115,11 +131,7 @@ fetchCart()
       const response = await axios.post(
         `http://localhost:3004/api/admin-logout`,
         {},
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${adminToken}`,
-        //     "Content-Type": "application/json",
-          // },
+
           {
           withCredentials: true,
         }
@@ -165,7 +177,9 @@ fetchCart()
   const handleNavigation = (path) => {
     navigate(path);
   };
-
+  const Toggle = (path) => {
+    navigate('/shopping-cart');
+  };
   return (
     <>
       <div className="container-navbar">
@@ -232,10 +246,9 @@ fetchCart()
             {isAdminSignedIn && adminUsername ? (
               <>
                 <span>
-                  <li>Hi, {adminUsername}</li>
-                  <li>
+                  <li>Hi, admin</li>
                     <Link to="/admin/admin-dashboard">Admin Dashboard</Link>
-                  </li>
+              
 
                   <li>
                     <button className="admin-logout-btn" onClick={handleAdminLogout}>

@@ -41,4 +41,4 @@ export const AdminProvider = ({ children }) => {
 };
 
 
-
+export default AdminContext;

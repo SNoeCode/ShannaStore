@@ -34,12 +34,13 @@ const App = () => {
 
   return (
     <>
-    
+
+
         <Navbar />
         <ShoppingCart />
-        <Routes>
+<Routes>
 
-          {/* <Route path="/login" element={<Login />} /> */}
+        
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin/*" element={<ProtectedAdminRoute />}>
             <Route path="admin-dashboard" element={<AdminDashboard />} />
@@ -52,24 +53,16 @@ const App = () => {
           <Route path="product-detail/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/*" element={<ProtectedRoute />}>
-            <Route path="account" element={<Account />} />
-            {/* <Route path="cart" element={<Cart />} /> */}
+    <Route path="account" element={<Account />} />
+    <Route path="payment" element={<Payment />} />
+    <Route path="my-cart" element={<Cart />} />
+  </Route>
 
-          </Route>
-          <Route path="/auth/*" element={<ProtectedRoute />}>
-          <Route path="payment" element={<Payment />} />
-
-         
-          </Route>
-          <Route path="/auth/*" element={<ProtectedRoute />}>
-            <Route path="my-cart" element={<Cart />} />
-        
-          </Route>
-        
           <Route path="contact-us" element={<ContactUs />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
         </Routes>
+     
         <div
           style={{
             // minHeight: "50vh",

@@ -55,112 +55,87 @@ try {
   }, []);
 
 
-  // const handleAddToCart = (product) => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     alert("Please Login to add to cart")
-  //     console.error("No token found. Please log in.");
-  //     return;
-  //   }
-  //   const userId = localStorage.getItem("userId")    
-  //   if (!userId) {
-  //     console.error("No user ID found. Please log in.");
-  //     return;
-  //   }
-  // const id =  product.id
-  // const productId = product.id.toString()
-  //   const newItem =  {  
-  //  cartItems: cartItems,
-  //     productId: Number(productId),
-  //     id: product.id,
-  //     title:product.title,
-  //     price: product.price,
-  //     description:
-  //      product.description,
-  //     category: product.category,
-  //     image: product.image,
-    
-  // quantity: 1,
-  //   }
- 
-  // console.log("Request Data:", newItem);
-  
-    
-  // const response =
-  //   axios.post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
-  //     headers: { Authorization: `Bearer ${token}`,"Content-Type": "application/json"},
-  //     withCredentials: true,
-  //   })
-  //   .then((response) => {
-  //     setData(response.data)
-  //     console.log("Successfully added to backend cart:", response.data);
-  //     console.log("response.data.product",response.data.product)
-  //     addItem(newItem);
-  //     // const addItem = (product) => {
-  //     //   dispatch({ type: "ADD_ITEM", payload: product });
-  //     // // };
-  //     addItem(newItem);
-  //     localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  //     // dispatch({ type: "UPDATE_CART", payload: response.data });
-  //     // localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  //     // localStorage.setItem("cartItems", JSON.stringify([...state.cartItems, newItem]));
-  //     // localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
-  //   //  addItem(newItem)
-     
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-  // }; 
-  const handleAddToCart = (product) => {
-    const token = localStorage.getItem("token");
-    console.log("Token from localStorage:", token); // Verify token value
-    if (!token) {
-      alert("Please Login to add to cart");
-      console.error("No token found. Please log in.");
-      return;
-    }
+  useEffect(() => {
     const userId = localStorage.getItem("userId");
-    if (!userId) {
-      console.error("No user ID found. Please log in.");
-      return;
-    }
-    // ...
-    const productId = product.id.toString();
-    const newItem = {  
-      // Remove extra properties if not required by backend
-      productId: Number(productId),
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      description: product.description,
-      category: product.category,
-      image: product.image,
-      quantity: 1,
-    };
-  
-    console.log("Request Data:", newItem);
+    const username = localStorage.getItem("username");
     
-    axios
-      .post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log("Successfully added to backend cart:", response.data);
-        // Make sure addItem also updates your context correctly.
-        addItem(newItem);
-        // Rather than forcing your localStorage here, let your CartContext update it.
-        // localStorage.setItem("cartItems", JSON.stringify(cartItems));
-      })
-      .catch((error) => {
-        console.error("Error in addToCart:", error);
-      });
-  };
+    // ✅ Define `storedData` first
+    const storedData = localStorage.getItem("cartItems");
+    
+    // ✅ Ensure `parsedData` is initialized properly
+    let parsedData = [];
+    try {
+      parsedData = storedData && storedData !== "undefined" ? JSON.parse(storedData) : [];
+    } catch (error) {
+      console.error("Error parsing cartItems:", error);
+      parsedData = [];
+    }
   
+    if (userId && username) {
+      setAuthedUser({
+        userId: userId,
+        username: username
+      });
+    }
+  }, []);
+
+
+
+useEffect(() => {
+  getProducts()
+    .then((res) => {
+      setProducts(res.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching products:", error);
+    });
+}, []);
+
+
+const handleAddToCart = (product) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please Login to add to cart");
+    console.error("No token found. Please log in.");
+    return;
+  }
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    console.error("No user ID found. Please log in.");
+    return;
+  }
+
+  const newItem = {
+    productId: Number(product.id),
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    description: product.description,
+    category: product.category,
+    image: product.image,
+    quantity: 1,
+  };
+
+  console.log("Request Data:", newItem);
+
+  axios
+    .post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    })
+    .then((response) => {
+      setData(response.data); // ← ⚠️ make sure `setData` is defined if you use it
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
+      dispatch({ type: "ADD_ITEM", payload: newItem });
+      localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
 
   const navigateToNewPage = (id) => {
@@ -227,3 +202,8 @@ try {
 };
 
 export default Home;
+
+
+
+
+
