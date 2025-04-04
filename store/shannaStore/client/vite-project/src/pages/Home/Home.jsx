@@ -55,55 +55,88 @@ try {
   }, []);
 
 
-  const handleAddToCart = (product) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please Login to add to cart")
-      console.error("No token found. Please log in.");
-      return;
-    }
-    const userId = localStorage.getItem("userId")    
-    if (!userId) {
-      console.error("No user ID found. Please log in.");
-      return;
-    }
-  const id =  product.id
-  const productId = product.id.toString()
-    const newItem =  {  
-   cartItems: cartItems,
-      productId: Number(productId),
-      id: product.id,
-      title:product.title,
-      price: product.price,
-      description:
-       product.description,
-      category: product.category,
-      image: product.image,
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
     
-  quantity: 1,
+    // ✅ Define `storedData` first
+    const storedData = localStorage.getItem("cartItems");
+    
+    // ✅ Ensure `parsedData` is initialized properly
+    let parsedData = [];
+    try {
+      parsedData = storedData && storedData !== "undefined" ? JSON.parse(storedData) : [];
+    } catch (error) {
+      console.error("Error parsing cartItems:", error);
+      parsedData = [];
     }
- 
-  console.log("Request Data:", newItem);
   
-    
-  const response =
-    axios.post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
-      headers: { Authorization: `Bearer ${token}`,"Content-Type": "application/json"},
+    if (userId && username) {
+      setAuthedUser({
+        userId: userId,
+        username: username
+      });
+    }
+  }, []);
+
+
+
+useEffect(() => {
+  getProducts()
+    .then((res) => {
+      setProducts(res.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching products:", error);
+    });
+}, []);
+
+
+const handleAddToCart = (product) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please Login to add to cart");
+    console.error("No token found. Please log in.");
+    return;
+  }
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    console.error("No user ID found. Please log in.");
+    return;
+  }
+
+  const newItem = {
+    productId: Number(product.id),
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    description: product.description,
+    category: product.category,
+    image: product.image,
+    quantity: 1,
+  };
+
+  console.log("Request Data:", newItem);
+
+  axios
+    .post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       withCredentials: true,
     })
     .then((response) => {
-      setData(response.data)
-      console.log("Successfully added to backend cart:", response.data);
-      console.log("response.data.product",response.data)
-      addItem(newItem);
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-     
-     
+      setData(response.data); // ← ⚠️ make sure `setData` is defined if you use it
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
+      dispatch({ type: "ADD_ITEM", payload: newItem });
+      localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
     })
     .catch((error) => {
       console.log(error);
     });
-  }; 
+};
+
 
   const navigateToNewPage = (id) => {
     console.log("Navigating to product details:", id);
@@ -169,3 +202,8 @@ try {
 };
 
 export default Home;
+
+
+
+
+

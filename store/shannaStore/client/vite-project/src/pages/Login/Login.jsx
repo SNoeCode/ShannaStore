@@ -4,14 +4,11 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { UserContext } from "../../context/UserContext";
 import { CartContext } from "../../context/cartContext";
-import {
-  FacebookButton,
-  FacebookLoginButton,
-} from "../../components/FacebookButton/FacebookButton";
+
 import Captcha from "../../Image/clipart-captcha-code-1-512x512-61ae.png";
 
 const Login = () => {
-  const { authedUser, setAuthedUser, updatedAuthedUser } =
+  const { authedUser, setAuthedUser } =
     useContext(UserContext);
   const { dispatch, fetchCart } = useContext(CartContext);
   const [credentials, setCredentials] = useState({
@@ -25,31 +22,32 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [cart, setCart] = useState({});
+  
 
-  const token = localStorage.getItem("token");
-  // useEffect(() => {
-  //   if (authedUser?.userId && authedUser.token) {
-  //     fetchCart(authedUser.userId, authedUser.token);
-  //   }
-  // }, [authedUser]);
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const username = localStorage.getItem("username");
-    const token = localStorage.getItem("token");
-    const productId = localStorage.getItem("productId");
-    const _id = localStorage.getItem("_id");
-    const role = localStorage.getItem("role");
 
     let cartItems = [];
     const storedCartItems = localStorage.getItem("cartItems");
-    if (storedCartItems && storedCartItems !== "undefined") {
+    if (!storedCartItems && storedCartItems == "undefined") {
       try {
         cartItems = JSON.parse(storedCartItems);
+        cartItems = Array.isArray(cartItems) ? cartItems : [];
+
       } catch (error) {
         console.error("Error parsing cartItems:", error);
       }
     }
-
+    useEffect(() => {
+      if (authedUser?.user?.cartItems && state.cartItems.length === 0) {
+        console.log("Setting cart from login response:", authedUser.user.cartItems);
+        dispatch({
+          type: "UPDATE_CART",
+          payload: { cartItems: authedUser.user.cartItems },
+        });
+    
+        localStorage.setItem("cartItems", JSON.stringify(authedUser.user.cartItems));
+      }
+    }, [authedUser]);
+    
     let wishlist = [];
     const storedWishlist = localStorage.getItem("wishlist");
     if (storedWishlist && storedWishlist !== "undefined") {
@@ -60,23 +58,6 @@ const Login = () => {
       }
     }
 
-    if (userId && username) {
-      setAuthedUser({
-        userId,
-        role,
-        _id,
-        username,
-        token,
-        productId,
-        cartItems,
-        wishlist,
-      });
-    }
-  }, []);
-
-  // useEffect(() => {
-  //   console.log("authedUser changed:", authedUser);
-  // }, [authedUser]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,49 +67,70 @@ const Login = () => {
   const handleConfirm = async () => {
     const verificationCode = "just example";
     if (userInputValue !== verificationCode) return;
-  };
+  
+      
+    setCredentials((prev) => {
+      console.log("prev", prev);
+      return {
+        ...prev,
+        [e.target.id]: e.target.value,
+      };
+    });
+  }
   const handleConfirmLogin = async ({ cartItems }) => {
     try {
-      const loginResponse = await axios.post(
+      const response = await axios.post(
         "http://localhost:3004/api/login",
-        credentials,
-        {
-          withCredentials: true,
-        }
-      );
-
-      console.log("res", loginResponse.data);
-      const user = loginResponse.data.user
-      const authToken = loginResponse.data.user.token;
-      setCart(loginResponse.data.user.cartItems);
-
-      setAuthedUser(user);
-      localStorage.setItem("role", user.role);
-      localStorage.setItem("token", authToken);
-      localStorage.setItem("userId", user.userId);
-      localStorage.setItem("username", user.username);
-      localStorage.setItem("cartId", user.cartId);
-      localStorage.setItem("_id", user._id);
-      localStorage.setItem("cartItems", JSON.stringify(user.cartItems || []));
-
-      localStorage.setItem("wishlist", JSON.stringify(user.wishlist || []));
-      console.log("user", user);
-      const userId = user.userId;
-      dispatch({
-        type: "UPDATE_CART",
-        payload: { cartItems },
+        credentials, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
       });
 
-      fetchCart();
-    } catch (error) {
-      console.error("Error during login:", error);
-      setError("Login failed. Please check your credentials and try again.");
-    }
+
+      setCart(response.data.cartItems);
+
+  const userData = response.data.user;
+  setAuthedUser({
+    username: userData.username,
+    token: response.data.token || "",
+    id:userData._id,
+    role: userData.role,
+    userId: userData.userId,
+    cartItems: userData.cartItems,
+   productId: userData.productId
+  });
+  localStorage.setItem("username", userData.username);
+  localStorage.setItem("token", response.data.token || "");
+
+
+ 
+    localStorage.setItem("userId", userData.userId);
+    // localStorage.setItem("username", user.username);
+    localStorage.setItem("id", userData._id);
+    localStorage.setItem("role", userData.role);
+    localStorage.setItem("cartItems", JSON.stringify(userData.cartItems || []));
+    localStorage.setItem("wishlist", JSON.stringify(userData.wislist || []));
+
+    // Update cart context
+    dispatch({ type: "UPDATE_CART", payload: { cartItems: userData.cartItems || [] } });
+    fetchCart(); // Fetch updated cart
+
     alert("User Logged In");
-    navigate("/auth/");
-  };
+    navigate("/auth/account"); // Redirect after login
+
+  // } else {
+  //   setError("Login failed. Please check your credentials.");
   
-   
+} catch (error) {
+  console.error("Login error:", error);
+  setError("Login failed. Please check your credentials and try again.");
+}
+};
+
+
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setUserInputValue("");
@@ -186,12 +188,12 @@ const Login = () => {
                 <span>Sign up?</span>
               </a>
             </p>
-            <FacebookButton />
+           
             <div>
               <button type="button">Sign in with Google</button>
             </div>
           </form>
-          <FacebookLoginButton />
+     
         </div>
         {isModalOpen && (
           <div className="user-modal">

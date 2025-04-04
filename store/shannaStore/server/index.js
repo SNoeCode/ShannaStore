@@ -4,9 +4,9 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const adminRouter = require("./routes/adminRoutes");
+// const adminRouter = require("./routes/adminRoutes");
 
-const router = require("./routes/routes");
+const Router = require("./routes/routes");
 
 require("dotenv").config();
 const app = express();
@@ -18,6 +18,7 @@ const jwt = require("jsonwebtoken");
 // });
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
@@ -27,11 +28,10 @@ app.use(
     credentials: true,
   })
 );
+Router(app)
+// app.use("/api", router);
+// app.use("/admin", adminRouter);
 
-app.use("/api", router);
-app.use("/admin", adminRouter);
-
-app.use(cookieParser());
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("connected");

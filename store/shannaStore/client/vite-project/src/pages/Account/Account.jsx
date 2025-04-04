@@ -22,7 +22,7 @@ const Account = () => {
 
             {/* <li  onClick={() => handleNavigation("/cart/")}>          <Link to={'/account/cart'}>Your Cart</Link>  </li> */}
             <li>
-              <Link to={"cart"}>Your Cart</Link> 
+              <Link to={"/auth/my-cart"}>Your Cart</Link> 
             </li>
             <h3>Your Cart</h3>
             <li>
@@ -32,7 +32,7 @@ const Account = () => {
               <h3>Your Wishlist</h3>
             </div>
             <li>
-              <Link to="/payment">Payment Options</Link>
+              <Link to="/auth/payment">Payment Options</Link>
             </li>
           </ul>
         </div>

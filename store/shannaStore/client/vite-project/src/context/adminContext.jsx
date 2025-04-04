@@ -4,46 +4,41 @@ export const AdminContext = createContext(null);
 
 export const AdminProvider = ({ children }) => {
     const [admin, setAdmin] = useState(null);
-    const [adminUser, setAdminUser] = useState(null);
+    const [userAdmin, setUserAdmin] = useState(null);
+    const adminToken = localStorage.getItem("adminToken") || "";
+    const adminUsername = localStorage.getItem("adminUsername") || "";
     useEffect(() => {
         const adminId = localStorage.getItem("adminId") || null;
         const adminRole = localStorage.getItem("adminRole") || null;
         const adminUsername = localStorage.getItem("adminUsername") || null;
         const adminToken = localStorage.getItem("adminToken") || null;
-    
-        const user = {
-          adminId,
-          adminUsername,
-          adminRole,
-          adminToken,
+
+        const adminData = {
+            adminUsername: adminUsername,
+            adminRole: adminRole,
+            adminToken: adminToken,
         };
-    
-        setAdminUser(user);
-        setAdmin(user);    
-    
-      
-        if (user && user.adminToken) {
-          localStorage.setItem("adminToken", user.adminToken);
+
+        setAdmin(adminData);
+        setUserAdmin(adminData)
+        if (adminToken) {
+            localStorage.setItem("adminToken", adminToken);
         } else {
-          localStorage.removeItem("adminToken");
+            localStorage.removeItem("adminToken");
         }
-    
-        localStorage.setItem("adminId", user.adminId || "");
-        localStorage.setItem("adminUsername", user.adminUsername || "");
-        localStorage.setItem("adminRole", user.adminRole || "");
-      }, []);
-    
-      return (
-        <AdminContext.Provider value={{ adminUser, admin, setAdmin }}>
-          {children}
+
+        localStorage.setItem("adminId", adminId || "");
+        localStorage.setItem("adminUsername", adminUsername || "");
+        localStorage.setItem("adminRole", adminRole || "");
+
+    }, []);
+
+    return (
+        <AdminContext.Provider value={{ setUserAdmin, userAdmin, setAdmin,admin }}>
+            {children}
         </AdminContext.Provider>
-    
-);
+    );
 };
 
 
-
-
-
-
-
+export default AdminContext;

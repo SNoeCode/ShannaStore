@@ -1,5 +1,3 @@
-
-
 import React, {
   createContext,
   useReducer,
@@ -14,55 +12,78 @@ import { UserContext } from "../context/UserContext";
 export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
-  const { authedUser,updatedAuthedUser } = useContext(UserContext);
-  const getLocalCartItems = () => {
-    const storedCartItems = localStorage.getItem("cartItems");
-    if (!storedCartItems || storedCartItems === "undefined") {
-      return [];
-    }
-    try {
-      return JSON.parse(storedCartItems);
-    } catch (error) {
-      console.error("Error parsing cart items from localStorage:", error);
-      return [];
-    }
-  };
-  const initialState = {
-    userId: authedUser?.userId || null,
-    cartItems: Array.isArray(getLocalCartItems()) ? getLocalCartItems() : [],
-    isCartOpen: false,
-    loading: false,
-  };
-  //   const initialState = {
-  //   userId: authedUser?.userId || null,
-  //   cartItems:[],
-  //     isCartOpen: false,
-  //   loading: true,
+  const { setAuthedUser, authedUser } = useContext(UserContext);
 
+  // ✅ Define initialState before useReducer
+  // const initialState = {
+  //   userId: authedUser?.userId || null,
+  //   cartItems: [],
+  //   isCartOpen: false,
+  //   loading: false,
+  useEffect(() => {
+    const savedCartItems = localStorage.getItem("cartItems");
+    if (savedCartItems && savedCartItems !== "undefined") {
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: JSON.parse(savedCartItems) } });
+    }
+  }, []);
   // };
 
-  const consolidateCartItems = (items) =>
-    items.reduce((acc, item) => {
-      const existingItem = acc.find((i) => i.productId === item.productId);
-      if (existingItem) {
-        existingItem.quantity += item.quantity;
-      } else {
-        acc.push({ ...item });
-      }
-      return acc;
-    }, []);
-    const [state, dispatch] = useReducer(cartReducer, initialState);
-    
-    const token = localStorage.getItem('authedUser?.token')
-  useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
-  }, [state.cartItems]);
-  useEffect(() => {
-    if (authedUser?.userId && authedUser.token) {
-      fetchCart(authedUser.userId, authedUser.token);
-    }
-  }, [authedUser]);
 
+  let savedCartItems = [];
+  try {
+    const raw = localStorage.getItem("cartItems");
+    if (raw && raw !== "undefined") {
+      savedCartItems = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("Failed to parse cartItems from localStorage:", e);
+  }
+  
+  const initialState = {
+    isCartOpen: false,
+    cartItems: savedCartItems,
+    loading: false,
+    error: null,
+  };
+
+
+
+  // const initialState = {
+  //   isCartOpen: false,
+  //   cartItems: JSON.parse(localStorage.getItem("cartItems")) || [],
+  //   loading: false,
+  //   error: null,
+  // };
+  // ✅ Initialize reducer AFTER defining `initialState`
+  const [state, dispatch] = useReducer(cartReducer, initialState);
+
+  // ✅ Ensure cartQuantity is calculated AFTER state is initialized
+  const cartQuantity = Array.isArray(state.cartItems)
+    ? state.cartItems.reduce((total, item) => total + (item.quantity || 0), 0)
+    : 0;
+    useEffect(() => {
+      const storedUser = JSON.parse(localStorage.getItem("authedUser"));
+      if (storedUser) {
+        setAuthedUser(storedUser);
+      }
+    }, []);
+    
+  // ✅ Retrieve token correctly
+  const token = authedUser?.token || localStorage.getItem("token");
+  const handleAddToCart = () => {
+    dispatch({
+      type: "ADD_ITEM",
+      payload: {
+        productId: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        description: product.description,
+        category: product.category,
+      },
+    });
+  };
+  // ✅ Fetch cart items from backend
   const fetchCart = async (userId) => {
     if (!userId) return;
 
@@ -71,19 +92,22 @@ export const CartProvider = ({ children }) => {
       const response = await axios.get(
         `http://localhost:3004/api/cart/${userId}`,
         {
-          headers: { 'Authorization': `Bearer ${token}`},
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
       );
 
-      const rawCartItems = response.data.cartItems || [];
-      console.log("fetched cart", rawCartItems);
-      const consolidatedCartItems = consolidateCartItems(rawCartItems);
-
       dispatch({
         type: "UPDATE_CART",
-        payload: { cartItems: consolidatedCartItems },
+        payload: {
+          cartItems: Array.isArray(response.data.cartItems)
+            ? response.data.cartItems
+            : [],
+        },
       });
+      localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems ||  []));
+      console.log("Fetched cart items:", response.data.cartItems);  
+
     } catch (error) {
       console.error("Error fetching cart:", error);
     } finally {
@@ -91,157 +115,86 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateCartItemQuantity = async (productId, userId, quantity) => {
-    if (!userId || typeof userId !== "string" || userId.length !== 24) {
-      return;
-    }
-    try {
-      if (quantity <= 0) {
-        // Remove the item if quantity is 0
-        await removeCartItem(productId);
-        return;
-      }
-      const response = await axios.put(
-        `http://localhost:3004/api/cart/update/${userId}`,
-        { productId, quantity },
-        {
-          headers: {
-            Authorization: `Bearer ${
-              authedUser?.token || localStorage.getItem("token")
-            }`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      // const updatedCartItems = consolidateCartItems(response.data.cartItems);
-      const updatedCartItems = response.data.cartItems;
-      // dispatch({ type: "SET_CART_ITEMS", payload: updatedCartItems });
-      dispatch({ type: "SET_CART_ITEMS", payload: updatedCartItems });
-      dispatch({ type: "INCREMENT", payload: productId });
-      dispatch({ type: "DECREMENT", payload: productId });
-      // dispatch({ type: "REMOVE_FROM_CART", payload: productId });
-    } catch (error) {
-      console.error("Error updating cart item:", error);
-    }
-  };
-
-  const handleQuantityChange = async (productId, changeType) => {
-    if (authedUser.userId) {
-      dispatch({
-        type: changeType === "increment" ? "INCREMENT" : "DECREMENT",
-        payload: { productId },
-      });
-      dispatch({
-        type: changeType === "decrement" ? "DECREMENT" : "INCREMENT",
-        payload: { productId },
-      });
-      dispatch({
-        type: changeType === "REMOVE_FROM_CART",
-        payload: { productId },
-      });
-      return;
-    }
-  };
-
+  // ✅ Add item to cart
   const addItem = (product) => {
     dispatch({ type: "ADD_ITEM", payload: product });
   };
 
+  // ✅ Remove item from cart
+  const removeCartItem = async (productId, userId) => {
+    try {
+      await axios.delete(`http://localhost:3004/api/remove/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+
+      dispatch({ type: "REMOVE_FROM_CART", payload: { productId } });
+    } catch (error) {
+      console.error("Error removing cart item:", error);
+    }
+  };
+
+  // ✅ Increment item quantity
   const incrementItem = useCallback(
     (productId) => {
       const currentItem = state.cartItems.find(
         (item) => item.productId === productId
       );
       if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(
-          productId,
-          authedUser.userId,
-          currentItem.quantity + 1
-        );
+        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity + 1);
       }
     },
-    [updateCartItemQuantity, state.cartItems, authedUser]
+    [state.cartItems, authedUser]
   );
-  // const incrementItem = useCallback((productId) => {
-  //   const currentItem = state.cartItems.find(
-  //     item => item.productId === productId
-  //   );
 
-  //   if (currentItem) {
-  //     updateCartItemQuantity(
-  //       productId,
-  //       currentItem.quantity + 1
-  //     );
-  //   }
-  // }, [state.cartItems, updateCartItemQuantity]);
-  // const decrementItem = (productId) => {
-  // dispatch({ type: "DECREMENT", payload: { productId } });
-  // };
+  // ✅ Decrement item quantity
   const decrementItem = useCallback(
     (productId) => {
       const currentItem = state.cartItems.find(
         (item) => item.productId === productId
       );
       if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(
-          productId,
-          authedUser.userId,
-          currentItem.quantity - 1
-        );
+        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity - 1);
       }
     },
-    [updateCartItemQuantity, state.cartItems, authedUser]
+    [state.cartItems, authedUser]
   );
-  // const removeItem = useCallback((productId) => {
-  //     const currentItem = state.cartItems.find(
-  //       item => item.productId === productId
-  //     );
 
-  //     if (currentItem === 0) {
-  //       dispatch({ type: "REMOVE_FROM_CART", payload: { productId } })
-  //     }
-  //   }, [state.cartItems, updateCartItemQuantity]);
-  const removeCartItem = async (productId,userId)=> {
+  // ✅ Update cart item quantity
+  const updateCartItemQuantity = async (productId, userId, quantity) => {
+    if (!userId || typeof userId !== "string" || userId.length !== 24) {
+      return;
+    }
     try {
-      const response = await axios.delete(
-        `http://localhost:3004/api/remove/${userId}`,
-       {
-          
+      if (quantity <= 0) {
+        await removeCartItem(productId, userId);
+        return;
+      }
+      const response = await axios.put(
+        `http://localhost:3004/api/cart/update/${userId}`,
+        { productId, quantity },
+        {
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
       );
-      // console.log(
-      //   "Authorization Token:",
-      //   authedUser?.token || localStorage.getItem("token")
-      // );
-      const rawCartItems = response.data.cartItems || [];
-      // console.log("fetched cart", rawCartItems);
-   
-            const consolidatedCartItems = consolidateCartItems(rawCartItems);
-      // const updatedCartItems = response.data.cartItems;
-      dispatch({
-        type: "REMOVE_FROM_CART",
-        payload:{ productId},
-      });
 
-      console.log("Cart items after removal:", rawCartItems);
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
     } catch (error) {
-      console.error("Error removing cart item:", error);
+      console.error("Error updating cart item:", error);
     }
   };
 
+  // ✅ Toggle cart visibility
   const toggleCart = () => {
     dispatch({ type: "TOGGLE_CART" });
   };
 
+  // ✅ Clear cart
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
   };
 
-  // const removeFromCart =useCallback((productId) => {
-  //   dispatch({ type: "REMOVE_FROM_CART", payload: { productId } });
-  // )}
   return (
     <CartContext.Provider
       value={{
@@ -249,13 +202,13 @@ export const CartProvider = ({ children }) => {
         cartItems: state.cartItems,
         isCartOpen: state.isCartOpen,
         loading: state.loading,
+        cartQuantity,
         addItem,
         incrementItem,
         decrementItem,
         clearCart,
         removeCartItem,
         updateCartItemQuantity,
-        handleQuantityChange,
         toggleCart,
         fetchCart,
         dispatch,

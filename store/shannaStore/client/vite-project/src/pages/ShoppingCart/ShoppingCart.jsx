@@ -147,3 +147,6 @@ const calculateTotal = () => {
 };
 
 export default ShoppingCart;
+
+
+
