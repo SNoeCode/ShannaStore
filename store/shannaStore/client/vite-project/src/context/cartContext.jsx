@@ -96,6 +96,7 @@ export const CartProvider = ({ children }) => {
           withCredentials: true,
         }
       );
+console.log("Sending request to backend...", { productId, userId, quantity });
 
       dispatch({
         type: "UPDATE_CART",
@@ -135,55 +136,103 @@ export const CartProvider = ({ children }) => {
   };
 
   // ✅ Increment item quantity
-  const incrementItem = useCallback(
-    (productId) => {
-      const currentItem = state.cartItems.find(
-        (item) => item.productId === productId
-      );
-      if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity + 1);
-      }
-    },
-    [state.cartItems, authedUser]
-  );
+  // const incrementItem = useCallback(
+  //   (productId) => {
+  //     const currentItem = state.cartItems.find(
+  //       (item) => item.productId === productId
+  //     );
+  //     if (currentItem && authedUser?.userId) {
+  //       updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity + 1);
+  //     }
+  //   },
+  //   [state.cartItems, authedUser]
+  // );
+  const handleIncrement = (productId) => {
+    const currentItem = cartItems.find((item) => item.productId === productId);
+    if (currentItem) {
+      incrementItem(productId); // this already updates it
+    }
+  };
 
   // ✅ Decrement item quantity
-  const decrementItem = useCallback(
-    (productId) => {
-      const currentItem = state.cartItems.find(
-        (item) => item.productId === productId
-      );
-      if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity - 1);
-      }
-    },
-    [state.cartItems, authedUser]
-  );
+  // const decrementItem = useCallback(
+  //   (productId) => {
+  //     const currentItem = state.cartItems.find(
+  //       (item) => item.productId === productId
+  //     );
+  //     if (currentItem && authedUser?.userId) {
+  //       updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity - 1);
+  //     }
+  //   },
+  //   [state.cartItems, authedUser]
+  // );
 
-  // ✅ Update cart item quantity
+
+
+  const handleDecrement = (productId) => {
+    const currentItem = cartItems.find((item) => item.productId === productId);
+    if (currentItem) {
+      decrementItem(productId); 
+    }
+  };
+  
   const updateCartItemQuantity = async (productId, userId, quantity) => {
+   const token = localStorage.getItem("token");
     if (!userId || typeof userId !== "string" || userId.length !== 24) {
+      console.error("Invalid userId:", userId);
       return;
     }
+    console.log("Sending request to backend...", { productId, userId, quantity });
     try {
+    
+  
       if (quantity <= 0) {
         await removeCartItem(productId, userId);
         return;
       }
+  
       const response = await axios.put(
         `http://localhost:3004/api/cart/update/${userId}`,
-        { productId, quantity },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
-
-      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
+        { productId, quantity, userId },
+        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      )
+      console.log("Backend response:", response.data);
+  
+      dispatch({
+        type: "UPDATE_CART",
+        payload: { cartItems: response.data.cartItems },
+      });
+  
+      localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems || []));
     } catch (error) {
-      console.error("Error updating cart item:", error);
+      console.error("Error updating cart item in backend:", error.response?.data || error);
     }
   };
+    
+  
+  // const updateCartItemQuantity = async (productId, userId, quantity) => {
+  //   if (!userId || typeof userId !== "string" || userId.length !== 24) {
+  //     return;
+  //   }
+  //   try {
+  //     if (quantity <= 0) {
+  //       await removeCartItem(productId, userId);
+  //       return;
+  //     }
+  //     const response = await axios.put(
+  //       `http://localhost:3004/api/cart/update/${userId}`,
+  //       { productId, quantity },
+  //       {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //         withCredentials: true,
+  //       }
+  //     );
+
+  //     dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
+  //   } catch (error) {
+  //     console.error("Error updating cart item:", error);
+  //   }
+  // };
 
   // ✅ Toggle cart visibility
   const toggleCart = () => {
@@ -194,7 +243,12 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
   };
-
+  const incrementItem = (id) => {
+    dispatch({ type: "INCREMENT", payload: id });
+  };
+  const decrementItem = (id) => {
+    dispatch({ type: "DECREMENT", payload: id });
+  };
   return (
     <CartContext.Provider
       value={{

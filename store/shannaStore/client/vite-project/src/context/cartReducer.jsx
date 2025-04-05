@@ -37,24 +37,56 @@ const cartReducer = (state, action) => {
             ? action.payload.cartItems
             : state.cartItems || JSON.parse(localStorage.getItem("cartItems")) || [],
         };
-      
-      case "ADD_ITEM":
-        if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
+
+        
+
+        case "ADD_ITEM":
+          if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
   
-        const existingItem = state.cartItems.find(
-          (item) => item.productId === action.payload.productId
-        );
+            const existingItem = state.cartItems.find(
+              (item) => item.productId === action.payload.productId
+            );
+            return {
+              ...state,
+              cartItems: existingItem
+                ? state.cartItems.map(item =>
+                    item.productId === action.payload.productId
+                      ? { ...item, quantity: item.quantity + 1 }
+                      : item
+                  )
+                : [...state.cartItems, { ...action.payload, quantity: 1 }],
+            };
+          
+  // return {
+  //   ...state,
+  //   cartItems: state.cartItems.map((item) =>
+  //     item.productId === action.payload.productId
+  //       ? { ...item, quantity: item.quantity + 1 } // ✅ Increase quantity if item already exists
+  //       : item
+  //   ).concat(
+  //     state.cartItems.some(item => item.productId === action.payload.productId)
+  //       ? []
+  //       : [{ ...action.payload, quantity: 1 }] // ✅ Add new item only if it doesn’t exist
+  //   ),
+  // };
+
+      // case "ADD_ITEM":
+      //   if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
   
-        return {
-          ...state,
-          cartItems: existingItem
-            ? state.cartItems.map((item) =>
-                item.productId === action.payload.productId
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item
-              )
-            : [...state.cartItems, { ...action.payload, quantity: 1 }],
-        };
+      //   const existingItem = state.cartItems.find(
+      //     (item) => item.productId === action.payload.productId
+      //   );
+  
+      //   return {
+      //     ...state,
+      //     cartItems: existingItem
+      //       ? state.cartItems.map((item) =>
+      //           item.productId === action.payload.productId
+      //             ? { ...item, quantity: item.quantity + 1 }
+      //             : item
+      //         )
+      //       : [...state.cartItems, { ...action.payload, quantity: 1 }],
+      //   };
   
 case "REMOVE_FROM_CART":
   return {

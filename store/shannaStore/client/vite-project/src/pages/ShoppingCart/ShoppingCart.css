@@ -4,16 +4,28 @@ body {
   margin: 0;
   box-sizing: border-box;
 }
+.close-btn {
+  top: 25px;
+  left: 450px;
+  margin-top: 0px;
+  cursor: pointer;
+  z-index: 1;
+color: white;
+  font-weight: bold;
+  position: absolute;
+}
 .cart {
   padding-top: 150px;
   width: 650px;
   display: flex;
-  /* max-height: 400px; */
+  max-height: 400px;
   overflow-y: scroll;
   position: fixed;
   top: 90px;
   right: 0;
-
+align-items: center;
+  justify-content: center;
+  flex-direction: column;
   z-index: 1;
   /* background: rgba(0, 0, 0, 0.9); */
 }
@@ -54,19 +66,18 @@ body {
 }
 .my-cart  {
   position: fixed !important;
-  /* position: sticky; */
-  /* position: absolute; */
+
   display: flex;
   align-items: center;
   text-align: center;
   justify-content: center;
-  /* z-index: 1; */
-  /* top: 130px;
-  left: 70%; */
+  z-index: 1;
+  top: 130px;
+  left: 70%; 
 
-  ;  font-size: 18px;
+   font-size: 18px;
   color: white;
-  /* position: fixed; */
+
 }
 .quantity {
   display: flex;
@@ -123,7 +134,7 @@ body {
 }
 
 .checkout-btn {
-  background-color: #007bff;
+  background-color: #cd74a0;
   color: black;
   display: flex;
   cursor: pointer;
@@ -135,16 +146,19 @@ body {
   align-self: start;
 }
 .add {
-  height: 10px;
-  width: 5px;
+  height: 2px;
+  width: 2px;
   display: flex;
+  background-color: #cd74a0;
   align-items: center;
   justify-content: center;
 }
 .minus {
   color: white;
-  height: 20px;
-  width: 5px;
+  background-color: #cd74a0;
+
+  height: 2px;
+  width: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,19 +184,31 @@ p {
 .my-cart {
   height:130px;
   width: 530px;
-  /* position: absolute; */
+  position: absolute;
   z-index: 1;
   text-align: center;
   top: 130px;
   left: 70%;
   font-size: 18px;
   color: white;
-  display: block;
+
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   position: fixed;
-  /* margin-bottom: 50px; */
+
 }
 .cart-item .cart-item-imgs {
   width: 40px;
+  height: 40px;;
 
 }
 
+.cart-item-img {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  object-fit: contain;
+  margin-right: 10px;
+  margin-left: 10px;
+}

@@ -1,11 +1,15 @@
 const User = require("../models/user.Model");
+const express = require("express");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const Cart = require("../models/cart.Model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { ObjectId } = require("mongoose");
-
+const app = require("express");
+const cookieParser = require("cookie-parser");
+app.use(express.json());
+app.use(cookieParser());
 const Signup = (req, res) => {
   console.log("Registration hit", req.body);
   const { username, password } = req.body;
@@ -161,13 +165,17 @@ const Login = (req, res) => {
 };
 const AuthCheck = (req, res) => {
   console.log("AUTH CHECK, cookies:", req.headers.cookies);
-  if (!req.headers.cookies) {
+  if (!req.headers.cookie) {s
     console.log("no cookie");
 
     return res.json({ message: "no cookie" });
   } else {
     console.log("$$$$", req.headers.cookie.split("="));
-    //accessing cookies in ccokie header and then extracting token value out of it  
+    //accessing cookies in ccokie header and then extracting token 
+    const token = req.cookies.token; 
+    
+    
+    // value out of it  
     const split = req.headers.cookie.split("=");
     console.log("SPILT", split[1]);
     // Verify JWT token from cookie
@@ -213,79 +221,7 @@ const saveCart = (req, res) => {
     );
 };
 
-// const addToCart = async (req, res) => {
-//   console.log("Request Body:", req.body); //
-//   // const { userId} = req.params;
 
-
-//   const { userId } = req.params.userId;
-//   const { cartItems } = req.body;
-
-
-
-//   const user = await User.findOne({ userId });
-//   if (!user) {
-//     return res.status(404).json({ message: "User not found" });
-//   }
-
-
-//   const { productId, title, price, description, category, image, quantity } =
-//     req.body;
-
-//   try {
-//     // const decodedUserId = req.user.userId;
-
-//     console.log(`Product ID: ${productId}`);
-//     console.log(`Decoded User ID: ${decodedUserId}`);
-//     if (!productId || quantity <= 0) {
-//       return res.status(400).json({ message: "Invalid product data" });
-//     }
-
-//     if (!mongoose.Types.ObjectId.isValid(productId)) {
-//       return res.status(400).json({ message: "Invalid productId" });
-//     }
-
-//     // const user = await User.findOne( userId );
-//     const user = await User.findOne({ _id: userId });
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const existingItem = user.cartItems.find(
-//       (item) => item.productId.toString() === productId
-//     );
-//     if (existingItem) {
-//       existingItem.quantity += quantity;
-//     } else {
-//       const newProduct = {
-//         productId,
-//         title,
-//         price,
-//         description,
-//         category,
-//         image,
-//         quantity,
-//       };
-
-//       user.cartItems.push({
-//         title,
-//         name: title,
-//         price,
-//         category,
-//         description,
-//         productId,
-//         quantity,
-//         image,
-//       });
-//     }
-
-//     await user.save();
-//     return res.json({ message: "Item added to cart", cartItems: user.cartItems });
-//   } catch (error) {
-//     console.error("Error in addToCart:", error);
-//     return res.status(500).json({ message: "Server error", error });
-//   }
-// };
 const addToCart = async (req, res) => {
   console.log("Request Body:", req.body); //
   const { userId, _id } = req.params;
@@ -346,52 +282,103 @@ const addToCart = async (req, res) => {
   }
 };
 
+// const updateCartItems = async (req, res) => {
+//   console.log(req.body);
+//   try {
+//     const { userId } = req.params;
+//     const { productId, quantity, handleAddToCart } = req.body;
+
+
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({ error: "Invalid userId format" });
+//     }
+
+//     const user = await User.findOne({ userId });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     // Find the item in the cart
+//     const itemIndex = user.cartItems.findIndex(
+//       (item) => item.productId.toString() === productId.toString()
+//     );
+
+//     if (itemIndex !== -1) {
+
+//       //  if (itemIndex === -1) {
+//       user.cartItems[itemIndex].quantity = quantity;
+//     } else {
+
+//       user.cartItems.push({
+//         productId: new mongoose.Types.ObjectId(String(productId)),
+//         quantity,
+//         ...req.body,
+//       });
+//     }
+
+//     await user.save();
+
+//     console.log("Updated Cart Items:", user.cartItems);
+
+//     res.status(200).json({
+//       message: "Cart item updated",
+//       cartItems: user.cartItems,
+//     });
+
+//   } catch (error) {
+//     console.error("Error updating cart item:", error);
+//     res.status(500).json({ error: "Server error", details: error.message });
+//   }
+// }
 const updateCartItems = async (req, res) => {
-  console.log(req.body);
+  console.log("Update Cart Items Request:", req.body);
+
+  console.log("Incoming update request...");
+  console.log("Request body:", req.body);
+  console.log("Request params:", req.params);
+
+  const { userId } = req.params;
+  const { productId, quantity } = req.body;
+
   try {
-    const { userId } = req.params;
-    const { productId, quantity } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: "Invalid userId format" });
-    }
-
-    const user = await User.findOne({ userId });
+    // const user = await User.findOne({ userId });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // Find the item in the cart
+
     const itemIndex = user.cartItems.findIndex(
-      (item) => item.productId.toString() === productId.toString()
+      (item) => item.productId.toString() === productId
     );
-
     if (itemIndex !== -1) {
-
-      //  if (itemIndex === -1) {
       user.cartItems[itemIndex].quantity = quantity;
     } else {
-
-      user.cartItems.push({
-        productId: new mongoose.Types.ObjectId(String(productId)),
-        quantity,
-        ...req.body,
-      });
+      user.cartItems.push({ productId, quantity }); // ✅ Only add if it doesn’t exist
     }
 
-    await user.save();
+    // if (itemIndex === -1) {
+    //   console.error("Item not found in cart:", productId);
 
-    console.log("Updated Cart Items:", user.cartItems);
+    //   return res.status(404).json({ message: "Item not found in cart" });
+    // }
+
+    user.cartItems[itemIndex].quantity = quantity;
+
+    await user.save();
+    console.log("Cart updated successfully:", user.cartItems);
 
     res.status(200).json({
       message: "Cart item updated",
-      cartItems: user.cartItems,
+      cartItems: user.cartItems || [], 
     });
-
+    
   } catch (error) {
     console.error("Error updating cart item:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
-}
+};
 const fetchCart = async (req, res) => {
   console.log("fetch cart", req.body)
   console.log("fetch cart", cartItems)

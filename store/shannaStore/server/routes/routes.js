@@ -33,36 +33,16 @@ module.exports = (app) => {
   // app.get("/user/auth", auth, AuthCheck);
 
 app.get("/api/authCheck", auth, AuthCheck);
-  app.put("/api/cart/update/:userId", MiddleWare, updateCartItems);
+  app.put("/api/cart/update/:userId",MiddleWare, updateCartItems);
 
   app.post("/api/admin-logout", adminLogout);
   app.delete("/api/remove/:userId", auth, removeCartItem);
-  // app.get("/api/admin", adminAuth, isAdmin);
+  
   app.get("/api/admin", adminAuth, isAdmin);
 
 
-  // app.get('/api/admin', adminAuth, isAdmin)
-  // app.get('/api/admin', async (req, res) => {
-  //   const { username, password } = req.body;
-  
-  //   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-  //     const token = jwt.sign({ admin_username: username }, process.env.ADMIN_KEY, {
-  //       expiresIn: "1d"
-  //     });
-  
-  //     res.cookie("adminToken", token, {
-  //       httpOnly: true,
-  //       secure: process.env.NODE_ENV === "production",
-  //       sameSite: "strict",
-  //     });
-  
-  //     return res.status(200).json({ msg: "Admin logged in", token });
-  //   } else {
-  //     return res.status(401).json({ msg: "Invalid credentials" });
-  //   }
-  // });
   app.post("/api/admin-login", adminLogin);
-  // app.post("/api/admin-logout", auth, adminLogout);
+
 
 }
-// module.exports = router;
+

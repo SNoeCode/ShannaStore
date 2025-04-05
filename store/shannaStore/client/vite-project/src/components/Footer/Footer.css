@@ -13,7 +13,7 @@ body {
   /* position: static; */
   /* position: relative; */
   bottom: 0;
-  position: absolute;
+  position: fixed;
 
   width: 100%;
   left: 0;

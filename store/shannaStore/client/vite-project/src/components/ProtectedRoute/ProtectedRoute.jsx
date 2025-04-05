@@ -11,12 +11,15 @@ const ProtectedRoute = () => {
   const { fetchCart } = useContext(CartContext);
   const [loading, setLoading] = useState(true);
   const user = localStorage.getItem("user")
-  const token = localStorage.getItem("user.token");
+  const token = localStorage.getItem("token");
 
 useEffect(() => {
   console.log("Performing auth check...");
 
-  axios.get("http://localhost:3004/api/authCheck", { withCredentials: true })
+  axios.get("http://localhost:3004/api/authCheck", { headers: { Authorization: `Bearer ${token}` }, 
+    withCredentials: true,
+  })
+
     .then((res) => {
       if (res.data.msg === "valid token") {
         // Preserve cart items by merging existing ones if cart is empty

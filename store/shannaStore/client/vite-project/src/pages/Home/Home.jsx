@@ -127,7 +127,16 @@ const handleAddToCart = (product) => {
       withCredentials: true,
     })
     .then((response) => {
-      setData(response.data); // ← ⚠️ make sure `setData` is defined if you use it
+      setData(response.data);
+      const existingItem = cartItems.find(item => item.productId === product.productId);
+
+      if (existingItem) {
+        updateCartItemQuantity(product.productId, authedUser.userId, existingItem.quantity + 1);
+      } else {
+        dispatch({ type: "ADD_ITEM", payload: product });
+      }
+    
+    
       dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
       dispatch({ type: "ADD_ITEM", payload: newItem });
       localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
