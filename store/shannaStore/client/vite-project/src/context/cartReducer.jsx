@@ -29,32 +29,38 @@ const cartReducer = (state, action) => {
             ),
              };
    
+   
       case "UPDATE_CART":
         console.log("Updating cart with items:", action.payload.cartItems);
         return {
           ...state,
-          cartItems: Array.isArray(action.payload.cartItems) && action.payload.cartItems.length > 0
-            ? action.payload.cartItems
-            : state.cartItems || JSON.parse(localStorage.getItem("cartItems")) || [],
+          cartItems: action.payload.cartItems,
         };
       
-      case "ADD_ITEM":
-        if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
-  
-        const existingItem = state.cartItems.find(
-          (item) => item.productId === action.payload.productId
-        );
-  
-        return {
-          ...state,
-          cartItems: existingItem
-            ? state.cartItems.map((item) =>
-                item.productId === action.payload.productId
-                  ? { ...item, quantity: item.quantity + 1 }
+      
+        case "ADD_ITEM": {
+          const existingItemIndex = state.cartItems.findIndex(
+            (item) => item.productId === action.payload.productId
+          );
+        
+          if (existingItemIndex !== -1) {
+            return {
+              ...state,
+              cartItems: state.cartItems.map((item, index) =>
+                index === existingItemIndex
+                  ? { ...item, quantity: item.quantity + action.payload.quantity }
                   : item
-              )
-            : [...state.cartItems, { ...action.payload, quantity: 1 }],
-        };
+              ),
+            };
+          } else {
+            return {
+              ...state,
+              cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+            };
+          }
+        }
+
+     
   
 case "REMOVE_FROM_CART":
   return {

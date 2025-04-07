@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
- 
+
   },
   email: {
     type: String,
@@ -30,18 +30,20 @@ const UserSchema = new mongoose.Schema({
     default: () => new mongoose.Types.ObjectId(),
     unique: true,
   },
-cartItems: [
+  cartItems: [
     {
       title: String,
       name: String,
       price: { type: Number, required: true },
       category: { type: String, required: true },
       description: { type: String },
-      productId: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-      // productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true  },
-
+      image: {
+        type: String
+      },
+    
+      productId: { type: String, required: true },
       quantity: { type: Number, default: 1 },
-      default:[]
+      default: []
     },
   ],
   wishlist: [

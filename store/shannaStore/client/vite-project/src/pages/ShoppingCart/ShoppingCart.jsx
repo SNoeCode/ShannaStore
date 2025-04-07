@@ -16,57 +16,74 @@ dispatch,
     state: { cartItems = [], loading },
     fetchCart,
   } = useContext(CartContext);
-
+const userId = localStorage.getItem("userId");
   const { authedUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (authedUser) {
-      fetchCart(authedUser._id, authedUser.token);
+      console.log("Fetching cart for user:", authedUser.user);
+      // fetchCart(authedUser?._id, authedUser.token);
+      fetchCart(authedUser?.userId, authedUser.token);
+
     }
   }, [authedUser]);
 
   const handleCheckout = useCallback(() => {
-    navigate("/checkout");
+    navigate("/auth/checkout");
   }, [navigate]);
-  const handleIncrement = (productId) => {
+
+
+  const handleIncrement = async (productId) => {
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
-      incrementItem(productId);
-
-      updateCartItemQuantity(
-        productId,
-        authedUser._id,
-        currentItem.quantity + 1
-      );
+      try {
+        await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity + 1);
+      } catch (error) {
+        console.error("Error incrementing item quantity:", error);
+      }
     }
   };
-  const handleDecrement = (productId) => {
+  
+  
+  const handleDecrement = async (productId) => {
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
-      decrementItem(productId);
-
-      updateCartItemQuantity(
-        productId,
-        authedUser._id,
-        currentItem.quantity - 1
-      );
+      try {
+        if (currentItem.quantity > 1) {
+          // await updateCartItemQuantity(productId, authedUser?.userId, currentItem.quantity - 1);
+          await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity - 1);
+        } else {
+          await handleRemove(productId);
+        }
+        // The updated cart state is handled by the updateCartItemQuantity function
+      } catch (error) {
+        console.error("Error decrementing item quantity:", error);
+      }
     }
-
   };
-const handleRemove = async(productId) => {
-  try {
+  
+  
+
+  const handleRemove = async(productId) => {
+    
+      try {
+        const userId = authedUser?.userId || localStorage.getItem("userId"); // Ensure valid userId
+        
+        if (!userId || typeof userId !== "string" || userId.length !== 24) {
+          console.error("Invalid userId:", userId);
+          return;
+        }
+    
+    
     const currentItem = cartItems.find((item) => item.productId === productId);
 
     if (!currentItem) {
       console.error("Item not found in the cart.");
       return;
     }
-    await removeCartItem(productId)
-    dispatch({
-      type: "REMOVE_FROM_CART",
-      payload: productId,
-    });
+    await removeCartItem(productId, authedUser.userId);
+    dispatch({ type: "REMOVE_FROM_CART", payload: { productId } });
   } catch (error) {
     console.error("Error removing item:", error);
   }
@@ -81,11 +98,11 @@ const calculateTotal = () => {
 
   return (
     <div className="cart" id="cart">
-      <h2 className="my-cart">My Cart ({cartItems.length})</h2>
+    <h2 className="my-cart"></h2>
       <div className="cart-content">
         <div className="cart-head">
           <div title="Close" className="close-btn" onClick={toggleCart}>
-            Close &times;
+          X
           </div>
         </div>
         <div className="cart-container">
@@ -93,11 +110,13 @@ const calculateTotal = () => {
             cartItems.map((item) => (
               <div key={item.productId} className="shopping-cart">
                 <div className="cart-item">
-                  <img
-                    src={item.productId.image}
+                  {/* <img
+                    src={item?.image}
                     alt={item.title}
                     className="cart-item-img"
-                  />
+                  /> */}
+                  <img src={item?.image} alt={item.title} className="cart-item-img" />
+
                   <div className="cart-item-details">
                     <h3>{item.title}</h3>
                   </div>
@@ -109,27 +128,30 @@ const calculateTotal = () => {
                   </div>
                
                 </div>
+                  <span>
                 <div className="btn-container">
+
                     <button
                       className="add"
                       onClick={() => handleIncrement(item.productId)}
-                    >
+                      >
                       +
                     </button>
                     <p className="quantity">Quantity: {item.quantity}</p>
                     <button
                       className="minus"
                       onClick={() => handleDecrement(item.productId)}
-                    >
-                      -
+                      >
+                    -
                     </button>
-                     <button
+                     {/* <button
                     className="remove-btn"
                     onClick={() => handleRemove(item.productId)}
-                  >
+                    >
                     Remove
-                  </button>
+                    </button> */}
                   </div>
+                    </span>
 
               </div>
             ))
@@ -147,6 +169,4 @@ const calculateTotal = () => {
 };
 
 export default ShoppingCart;
-
-
 

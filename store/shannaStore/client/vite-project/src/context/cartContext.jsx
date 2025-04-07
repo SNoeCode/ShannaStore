@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useContext,
   useCallback,
+  useState
 } from "react";
 import axios from "axios";
 import cartReducer from "../context/cartReducer";
@@ -13,22 +14,20 @@ export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const { setAuthedUser, authedUser } = useContext(UserContext);
-
+  const [cartTotal, setCartTotal] = useState(0)
   // ✅ Define initialState before useReducer
   // const initialState = {
   //   userId: authedUser?.userId || null,
   //   cartItems: [],
   //   isCartOpen: false,
   //   loading: false,
-  useEffect(() => {
-    const savedCartItems = localStorage.getItem("cartItems");
-    if (savedCartItems && savedCartItems !== "undefined") {
-      dispatch({ type: "UPDATE_CART", payload: { cartItems: JSON.parse(savedCartItems) } });
-    }
-  }, []);
+
   // };
 
-
+  // useEffect(() => {
+  //   setCartTotal(calculateTotal(state.cartItems));
+  // }, [state.cartItems]);
+  
   let savedCartItems = [];
   try {
     const raw = localStorage.getItem("cartItems");
@@ -54,10 +53,11 @@ export const CartProvider = ({ children }) => {
   //   loading: false,
   //   error: null,
   // };
-  // ✅ Initialize reducer AFTER defining `initialState`
   const [state, dispatch] = useReducer(cartReducer, initialState);
-
-  // ✅ Ensure cartQuantity is calculated AFTER state is initialized
+  useEffect(() => {
+    setCartTotal(calculateTotal(state.cartItems)); // Now state is initialized before useEffect runs
+  }, [state.cartItems]);
+  
   const cartQuantity = Array.isArray(state.cartItems)
     ? state.cartItems.reduce((total, item) => total + (item.quantity || 0), 0)
     : 0;
@@ -68,7 +68,12 @@ export const CartProvider = ({ children }) => {
       }
     }, []);
     
-  // ✅ Retrieve token correctly
+    useEffect(() => {
+      const savedCartItems = localStorage.getItem("cartItems");
+      if (savedCartItems && savedCartItems !== "undefined") {
+        dispatch({ type: "UPDATE_CART", payload: { cartItems: JSON.parse(savedCartItems) } });
+      }
+    }, []);
   const token = authedUser?.token || localStorage.getItem("token");
   const handleAddToCart = () => {
     dispatch({
@@ -84,7 +89,7 @@ export const CartProvider = ({ children }) => {
     });
   };
   // ✅ Fetch cart items from backend
-  const fetchCart = async (userId) => {
+  const fetchCart = async (userId,quantity) => {
     if (!userId) return;
 
     dispatch({ type: "SET_LOADING", payload: true });
@@ -96,6 +101,7 @@ export const CartProvider = ({ children }) => {
           withCredentials: true,
         }
       );
+console.log("Sending request to backend...", { userId, quantity });
 
       dispatch({
         type: "UPDATE_CART",
@@ -115,15 +121,23 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // ✅ Add item to cart
+
   const addItem = (product) => {
     dispatch({ type: "ADD_ITEM", payload: product });
   };
 
-  // ✅ Remove item from cart
+
   const removeCartItem = async (productId, userId) => {
+    console.log("Removing item:", productId, "User ID:", userId);
+    console.log("Attempting to remove item:", productId);
+    console.log("User ID before request:", authedUser?._id);
+    if (!userId || typeof userId !== "string" || userId.length !== 24) {
+      console.error("Invalid userId:", userId);
+      return;
+    }
+  
     try {
-      await axios.delete(`http://localhost:3004/api/remove/${userId}`, {
+      await axios.delete(`http://localhost:3004/api/remove/${userId}/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -134,58 +148,60 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // ✅ Increment item quantity
-  const incrementItem = useCallback(
-    (productId) => {
-      const currentItem = state.cartItems.find(
-        (item) => item.productId === productId
-      );
-      if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity + 1);
-      }
-    },
-    [state.cartItems, authedUser]
-  );
-
-  // ✅ Decrement item quantity
-  const decrementItem = useCallback(
-    (productId) => {
-      const currentItem = state.cartItems.find(
-        (item) => item.productId === productId
-      );
-      if (currentItem && authedUser?.userId) {
-        updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity - 1);
-      }
-    },
-    [state.cartItems, authedUser]
-  );
-
-  // ✅ Update cart item quantity
-  const updateCartItemQuantity = async (productId, userId, quantity) => {
-    if (!userId || typeof userId !== "string" || userId.length !== 24) {
-      return;
-    }
-    try {
-      if (quantity <= 0) {
-        await removeCartItem(productId, userId);
-        return;
-      }
-      const response = await axios.put(
-        `http://localhost:3004/api/cart/update/${userId}`,
-        { productId, quantity },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
-
-      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
-    } catch (error) {
-      console.error("Error updating cart item:", error);
+  
+  const handleIncrement = (productId) => {
+    const currentItem = cartItems.find((item) => item.productId === productId);
+    if (currentItem) {
+      incrementItem(productId); // this already updates it
     }
   };
 
-  // ✅ Toggle cart visibility
+
+
+  const handleDecrement = (productId) => {
+    const currentItem = cartItems.find((item) => item.productId === productId);
+    if (currentItem) {
+      decrementItem(productId); 
+    }
+  };
+  
+
+
+const updateCartItemQuantity = async (productId, userId, quantity) => {
+  const token = authedUser?.token || localStorage.getItem("token");
+  console.log("User ID before making request:", userId);
+
+  if (!userId || typeof userId !== "string" || userId.length !== 24) {
+    console.error("Invalid userId:", userId);
+    return;
+  }
+  console.log("Sending request to backend...", { productId, userId, quantity });
+  try {
+    if (quantity <= 0) {
+      try {
+        await removeCartItem(productId, userId);
+      } catch (err) {
+        console.error("Error removing cart item:", err);
+      }
+      return;
+    }
+    const response = await axios.put(
+      `http://localhost:3004/api/cart/update/${userId}`,
+      { productId, quantity, userId },
+      { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+    );
+    console.log("Backend response:", response.data);
+    dispatch({
+      type: "UPDATE_CART",
+      payload: { cartItems: response.data.cartItems },
+    });
+    localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems || []));
+  } catch (error) {
+    console.error("Error updating cart item in backend:", error.response?.data || error);
+  }
+};
+
+ 
   const toggleCart = () => {
     dispatch({ type: "TOGGLE_CART" });
   };
@@ -194,6 +210,22 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
   };
+  const incrementItem = (id) => {
+    dispatch({ type: "INCREMENT", payload: id });
+  };
+  const decrementItem = (id) => {
+    dispatch({ type: "DECREMENT", payload: id });
+  };
+  // const calculateTotal = () => {
+  //   return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+  // };
+  const calculateTotal = () => {
+    return state.cartItems
+      .reduce((total, item) => total + item.price * item.quantity, 0)
+      .toFixed(2);
+  };
+  console.log("cart total", calculateTotal())
+
 
   return (
     <CartContext.Provider
@@ -212,6 +244,10 @@ export const CartProvider = ({ children }) => {
         toggleCart,
         fetchCart,
         dispatch,
+        // calculateTotal: state.calculateTotal,
+        // cartTotal
+        cartTotal, // ✅ Ensure this is passed
+        calculateTotal,
       }}
     >
       {children}

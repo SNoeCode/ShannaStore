@@ -13,8 +13,8 @@ body {
   /* position: static; */
   /* position: relative; */
   bottom: 0;
-  position: absolute;
-
+  position: fixed;
+margin-bottom: 125px;
   width: 100%;
   left: 0;
   z-index: 1000;

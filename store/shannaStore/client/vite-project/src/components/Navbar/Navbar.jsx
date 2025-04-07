@@ -71,7 +71,7 @@ fetchCart()
 
   const handleSignedOut = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = authedUser?.token || localStorage.getItem("token");
       if (!token) {
         console.error("No token found in localStorage. User is already signed out.");
         setAuthedUser(null);

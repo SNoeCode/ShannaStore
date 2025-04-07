@@ -10,16 +10,20 @@ import Mens from "../../Image/photo-1441984904996-e0b6ba687e04.jpeg";
 import Womans from "../../Image/gettyimages-854321536-612x612.jpg";
 import Electronics from "../../Image/workplace-business-modern-male-accessories-laptop-white_155003-1722.avif";
 import Jewelery from "../../Image/premium_photo-1681276170281-cf50a487a1b7.jpeg";
+
 const Category = () => {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
+  
   const [currentProduct, setCurrentProduct] = useState(null);
   const { category } = useParams(); 
-   const { addItem } = useContext(CartContext);
-   const handleAddToCart = () => {
+  const { addItem } = useContext(CartContext);
+  const isUserSignedIn = localStorage.getItem("token");
+  if(isUserSignedIn) {
+  const handleAddToCart = () => {
     addItem(currentProduct);
   };
+}
   const navigate = useNavigate();
   useEffect(() => {
     const fetchProducts = async () => {
@@ -40,8 +44,8 @@ const Category = () => {
   const categoryImages = {
     "men's clothing": Mens,
     "women's clothing": Womans,
-    electronics: Electronics ,
-    jewelery:  Jewelery,
+    "electronics": Electronics ,
+    "jewelery":  Jewelery,
   };
 
   const handleReadMore = (product) => {
