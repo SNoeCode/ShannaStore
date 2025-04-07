@@ -29,64 +29,38 @@ const cartReducer = (state, action) => {
             ),
              };
    
+   
       case "UPDATE_CART":
         console.log("Updating cart with items:", action.payload.cartItems);
         return {
           ...state,
-          cartItems: Array.isArray(action.payload.cartItems) && action.payload.cartItems.length > 0
-            ? action.payload.cartItems
-            : state.cartItems || JSON.parse(localStorage.getItem("cartItems")) || [],
+          cartItems: action.payload.cartItems,
         };
-
+      
+      
+        case "ADD_ITEM": {
+          const existingItemIndex = state.cartItems.findIndex(
+            (item) => item.productId === action.payload.productId
+          );
         
-
-        case "ADD_ITEM":
-          if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
-  
-            const existingItem = state.cartItems.find(
-              (item) => item.productId === action.payload.productId
-            );
+          if (existingItemIndex !== -1) {
             return {
               ...state,
-              cartItems: existingItem
-                ? state.cartItems.map(item =>
-                    item.productId === action.payload.productId
-                      ? { ...item, quantity: item.quantity + 1 }
-                      : item
-                  )
-                : [...state.cartItems, { ...action.payload, quantity: 1 }],
+              cartItems: state.cartItems.map((item, index) =>
+                index === existingItemIndex
+                  ? { ...item, quantity: item.quantity + action.payload.quantity }
+                  : item
+              ),
             };
-          
-  // return {
-  //   ...state,
-  //   cartItems: state.cartItems.map((item) =>
-  //     item.productId === action.payload.productId
-  //       ? { ...item, quantity: item.quantity + 1 } // ✅ Increase quantity if item already exists
-  //       : item
-  //   ).concat(
-  //     state.cartItems.some(item => item.productId === action.payload.productId)
-  //       ? []
-  //       : [{ ...action.payload, quantity: 1 }] // ✅ Add new item only if it doesn’t exist
-  //   ),
-  // };
+          } else {
+            return {
+              ...state,
+              cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
+            };
+          }
+        }
 
-      // case "ADD_ITEM":
-      //   if (!Array.isArray(state.cartItems)) return { ...state, cartItems: [] };
-  
-      //   const existingItem = state.cartItems.find(
-      //     (item) => item.productId === action.payload.productId
-      //   );
-  
-      //   return {
-      //     ...state,
-      //     cartItems: existingItem
-      //       ? state.cartItems.map((item) =>
-      //           item.productId === action.payload.productId
-      //             ? { ...item, quantity: item.quantity + 1 }
-      //             : item
-      //         )
-      //       : [...state.cartItems, { ...action.payload, quantity: 1 }],
-      //   };
+     
   
 case "REMOVE_FROM_CART":
   return {

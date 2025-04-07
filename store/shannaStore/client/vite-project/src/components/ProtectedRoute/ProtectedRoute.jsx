@@ -21,6 +21,7 @@ useEffect(() => {
   })
 
     .then((res) => {
+      console.log("Auth check response:", res.data);
       if (res.data.msg === "valid token") {
         // Preserve cart items by merging existing ones if cart is empty
         const storedCart = JSON.parse(localStorage.getItem("cartItems")) || [];

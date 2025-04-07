@@ -22,109 +22,67 @@ const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (authedUser) {
-      fetchCart(authedUser._id, authedUser.token);
+      console.log("Fetching cart for user:", authedUser.user);
+      // fetchCart(authedUser?._id, authedUser.token);
+      fetchCart(authedUser?.userId, authedUser.token);
+
     }
   }, [authedUser]);
 
   const handleCheckout = useCallback(() => {
-    navigate("/checkout");
+    navigate("/auth/checkout");
   }, [navigate]);
 
-  // const handleIncrement = async (productId) => {
-  //   const currentItem = cartItems.find((item) => item.productId === productId);
-  //   if (currentItem) {
-  //     try {
-  //       await updateCartItemQuantity(productId, authedUser._id, currentItem.quantity + 1);
-  //       dispatch({ type: "INCREMENT", payload: { productId } });
-  //       updateCartItemQuantity(productId, authedUser._id, currentItem.quantity + 1);
-  //     } catch (error) {
-  //       console.error("Error incrementing item quantity:", error);
-  //     }
-  //   }
-  // };
 
   const handleIncrement = async (productId) => {
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
       try {
-        await updateCartItemQuantity(productId,authedUser.userId, currentItem.quantity + 1);
-        dispatch({ type: "INCREMENT", payload: { productId } });
+        await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity + 1);
       } catch (error) {
         console.error("Error incrementing item quantity:", error);
       }
     }
   };
   
-  // const handleDecrement = async (productId) => {
-  //   const currentItem = cartItems.find((item) => item.productId === productId);
-  //   if (currentItem) {
-  //     try {
-  //       if (currentItem.quantity > 1) {
-  //         await updateCartItemQuantity(productId, authedUser._id, currentItem.quantity - 1);
-  //         dispatch({ type: "DECREMENT", payload: { productId } });
-  //         updateCartItemQuantity(productId, authedUser._id, currentItem.quantity - 1);
-  //       } else {
-  //         await handleRemove(productId);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error decrementing item quantity:", error);
-  //     }
-  //   }
-  // };
-
-
-
-
+  
   const handleDecrement = async (productId) => {
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
       try {
         if (currentItem.quantity > 1) {
-          await updateCartItemQuantity(productId, authedUser.userId, currentItem.quantity - 1);
-          dispatch({ type: "DECREMENT", payload: { productId } });
+          // await updateCartItemQuantity(productId, authedUser?.userId, currentItem.quantity - 1);
+          await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity - 1);
         } else {
           await handleRemove(productId);
         }
+        // The updated cart state is handled by the updateCartItemQuantity function
       } catch (error) {
         console.error("Error decrementing item quantity:", error);
       }
     }
   };
   
-  // const handleIncrement = (productId) => {
-  //   const currentItem = cartItems.find((item) => item.productId === productId);
-  //   if (currentItem) {
-  //     incrementItem(productId);
+  
 
-  //     updateCartItemQuantity(
-  //       productId,
-  //       authedUser._id,
-  //       currentItem.quantity + 1
-  //     );
-  //   }
-  // };
-  // const handleDecrement = (productId) => {
-  //   const currentItem = cartItems.find((item) => item.productId === productId);
-  //   if (currentItem) {
-  //     decrementItem(productId);
-
-  //     updateCartItemQuantity(
-  //       productId,
-  //       authedUser._id,
-  //       currentItem.quantity - 1
-  //     );
-  //   }
-  //   dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
-  // };
-const handleRemove = async(productId) => {
-  try {
+  const handleRemove = async(productId) => {
+    
+      try {
+        const userId = authedUser?.userId || localStorage.getItem("userId"); // Ensure valid userId
+        
+        if (!userId || typeof userId !== "string" || userId.length !== 24) {
+          console.error("Invalid userId:", userId);
+          return;
+        }
+    
+    
     const currentItem = cartItems.find((item) => item.productId === productId);
 
     if (!currentItem) {
       console.error("Item not found in the cart.");
       return;
     }
-    await removeCartItem(productId, authedUser._id);
+    await removeCartItem(productId, authedUser.userId);
     dispatch({ type: "REMOVE_FROM_CART", payload: { productId } });
   } catch (error) {
     console.error("Error removing item:", error);
@@ -157,7 +115,7 @@ const calculateTotal = () => {
                     alt={item.title}
                     className="cart-item-img"
                   /> */}
-                  <img src={item.productId.image} alt={item.title} className="cart-item-img" />
+                  <img src={item?.image} alt={item.title} className="cart-item-img" />
 
                   <div className="cart-item-details">
                     <h3>{item.title}</h3>
@@ -211,6 +169,4 @@ const calculateTotal = () => {
 };
 
 export default ShoppingCart;
-
-
 

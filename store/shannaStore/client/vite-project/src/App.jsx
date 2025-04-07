@@ -16,7 +16,9 @@ import { CartContext } from "./context/cartContext";
 import { UserContext } from "./context/UserContext";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import CategoriesPage from "./pages/CategoriesPage/CategoriesPage";
-import Checkout from "./pages/Checkout/Checkout";
+// import Checkout from "./pages/Checkout/Checkout";
+import CheckoutPage from "./pages/Checkout/CheckoutPage";
+// import Checkout from "./pages/Checkout/Checkout";
 import Payment from "./components/Payment/Payment";
 import ProtectedAdminRoute from './admin/AdminLogin/ProtectedAdminRoute';
 import AdminLogin from "./admin/AdminLogin/AdminLogin";
@@ -56,11 +58,11 @@ const App = () => {
     <Route path="account" element={<Account />} />
     <Route path="payment" element={<Payment />} />
     <Route path="my-cart" element={<Cart />} />
+          <Route path="checkout" element={<CheckoutPage />} />
   </Route>
 
           <Route path="contact-us" element={<ContactUs />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/checkout" element={<Checkout />} />
         </Routes>
      
         <div
