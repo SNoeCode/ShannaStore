@@ -25,26 +25,20 @@ const { auth, MiddleWare } = require("../middleware/middleware");
 
 module.exports = (app) => {
   app.post("/api/signup", Signup);
-  app.get("/api/cart/:userId", auth, fetchCart);
-
-  app.post("/api/:userId/addToCart", auth, addToCart);
-
-
   app.post("/api/login", Login);
+  app.get("/api/authCheck", auth, AuthCheck);
   app.post("/api/logout", auth, Logout);
-  // app.post("/api/:userId/saveCart", MiddleWare, saveCart);
-  // app.get("/user/auth", auth, AuthCheck);
-
-app.get("/api/authCheck", auth, AuthCheck);
+  
+  app.get("/api/cart/:userId", auth, fetchCart);
+  app.post("/api/:userId/addToCart", auth, addToCart);
   app.put("/api/cart/update/:userId",auth, updateCartItems);
-
-  app.post("/api/admin-logout", adminLogout);
   app.delete("/api/remove/:userId/:productId", auth, removeCartItem);
   
   app.get("/api/admin", adminAuth, isAdmin);
-
-
   app.post("/api/admin-login", adminLogin);
+  app.post("/api/admin-logout", adminLogout);
+
+
 
   // app.post("/api/create-payment-intent", async (req, res) => {
   //   try {

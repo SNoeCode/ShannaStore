@@ -1,11 +1,11 @@
-import React, { useEffect, useContext,useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 // import { CheckoutContext } from "../../context/CheckoutContext";
 // import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 // import { CheckoutProvider } from "../../context/CheckoutContext";
 // import CheckoutForm from "./CheckoutForm";
 
-import "./Checkout.css"; 
-import {CartContext} from '../../context/cartContext'
+import "./Checkout.css";
+import { CartContext } from '../../context/cartContext'
 
 const Checkout = () => {
   // const stripe = useStripe();
@@ -23,14 +23,8 @@ const Checkout = () => {
   const [shippingAddress, setShippingAddress] = useState({});
   const [billingAddress, setBillingAddress] = useState({});
   const [paymentMethod, setPaymentMethod] = useState("");
-  // const { createPaymentIntent, clientSecret } = useContext(CheckoutContext);
-  // useEffect(() => {
-  //   createPaymentIntent(); // ✅ Ensures clientSecret is generated before Stripe usage
-  // }, []);
 
-
-  // const { calculateTotal } = useContext(cartContext);
-  const {  cartTotal } = useContext(CartContext);
+  const { cartTotal } = useContext(CartContext);
   const handleShippingChange = (event) => {
     const { name, value } = event.target;
     setShippingAddress((prev) => ({ ...prev, [name]: value }));
@@ -57,28 +51,18 @@ const Checkout = () => {
       creditCard,
       expiration,
     }
-    // if (!stripe || !elements) {
-    //   console.log("Stripe is not initialized");
-    //   return;
-    // }
 
-    // const result = await stripe.confirmPayment({
-    //   elements,
-    //   confirmParams: {
-    //     return_url: "http://localhost:5173/order-success", 
-    //   },
-    // })
 
     console.log("Order submitted:", orderData);
     alert("Order placed successfully!");
   };
-  
+
   return (
     <div className="checkout-container">
       <h2 className="checkout-header">Checkout</h2>
       <form onSubmit={handleSubmit} className="checkout-form">
-        {/* Shipping Address */}
-        <div><strong>Total:</strong> ${cartTotal}</div> 
+
+        <div><strong>Total:</strong> ${cartTotal}</div>
         <h3 className="form-section-header">Shipping Address</h3>
         <input
           className="form-input"
@@ -117,7 +101,7 @@ const Checkout = () => {
           required
         />
 
-        {/* Billing Address */}
+
         <h3 className="form-section-header">Billing Address</h3>
         <input
           className="form-input"
@@ -187,12 +171,12 @@ const Checkout = () => {
           <option value="credit">Credit Card</option>
           <option value="paypal">PayPal</option>
         </select> */}
-  {/* </form>
+        {/* </form>
   <button className="form-button" type="submit">
   Place Order
   </button> */}
-  </form>
-</div>
+      </form>
+    </div>
   );
 };
 
