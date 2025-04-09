@@ -18,9 +18,7 @@ const Account = () => {
 
         <div className="account-options">
           <ul>
-            {/* <Link to="/cart/">View Cart</Link> */}
-
-            {/* <li  onClick={() => handleNavigation("/cart/")}>          <Link to={'/account/cart'}>Your Cart</Link>  </li> */}
+          
             <li>
               <Link to={"/auth/my-cart"}>Your Cart</Link> 
             </li>

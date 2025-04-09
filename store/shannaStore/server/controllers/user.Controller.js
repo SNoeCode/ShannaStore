@@ -75,31 +75,6 @@ const GetUsers = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-// const Logout = async (req, res) => {
-//   console.log(req.body);
-
-//   try {
-//     const token = req.cookies.token;
-//     if (!token) {
-//       return res
-//         .status(401)
-//         .json({ message: "Unauthorized: No token provided" });
-//     }
-
-//     res.clearCookie("token", {
-//       httpOnly: true,
-//       secure: true,
-//     });
-
-//     console.log("User logged out successfully");
-//     res.status(200).json({ message: "Logout successful" });
-//   } catch (error) {
-//     console.error("Logout error:", error);
-//     res.status(500).json({ message: "Logout failed" });
-//   }
-// };
-
-
 
 const Logout = async (req, res) => {
   try {
@@ -121,7 +96,7 @@ const Login = (req, res) => {
   console.log("login", req.body);
   const { cartItems } = req.body;
   User.findOne({ username: req.body.username })
-    // User.findOne({_id: req.body._id})
+
     .then((user) => {
       if (!user) {
         console.log("User not found");
@@ -158,7 +133,7 @@ const Login = (req, res) => {
               wishlist: user.wishlist || [],
               role: user.role || "user",
             },
-            //  token:token,
+
           });
         console.log({
           token,
@@ -195,7 +170,7 @@ const AuthCheck = (req, res) => {
     if (!decoded.username) {
       return res.status(401).json({ msg: "Unauthorized: Bad token" });
     }
-    req.user = decoded; // Attach decoded user info to request
+    req.user = decoded;
     return res.json({ msg: "valid token", decoded });
   } catch (err) {
     console.error("Token verification failed:", err);
@@ -246,40 +221,7 @@ const addToCart = async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
   
-
-    
-   
-//     const itemIndex = user.cartItems.findIndex(item => item.productId.toString() === productId.toString());
-
-//     console.log("Checking if product exists in cart:", productId, "Index:", itemIndex);
-//     if (itemIndex !== -1) {
-//       console.log("Comparing cart item:", user.cartItems[itemIndex].productId.toString(), "with incoming product:", productId.toString());
-//       user.cartItems[itemIndex].quantity += quantity;
-//     } else {
-    
-//       user.cartItems.push({
-
-//     productId: productId.toString(),
-// title,
-//         price,
-//         description,
-//         category,
-//         image,
-//         quantity,
-//       });
-//     }
-
-   
-//     await user.save();
-    
-  
-//     return res.json({ message: "Item added/updated in cart", cart: user.cartItems });
-//   } catch (error) {
-//     console.error("Error in addToCart:", error);
-//     return res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-const productIdObj = mongoose.Types.ObjectId.isValid(productId)
+  const productIdObj = mongoose.Types.ObjectId.isValid(productId)
 ? new mongoose.Types.ObjectId(productId)
 : productId;
 
@@ -314,67 +256,6 @@ return res.status(500).json({ message: "Server error", error: error.message });
 }
 };
 
-// const updateCartItems = async (req, res) => {
-//   console.log("Update Cart Items Request:", req.body);
-  
-//   console.log("Incoming update request...");
-//   console.log("Request body:", req.body);
-//   console.log("Request params:", req.params);
-
-//   const { userId } = req.params;
-//   const { productId, quantity } = req.body;
- 
-
-//   try {
-  
-//     const user = await User.findOne({userId});
-
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     // const itemIndex = user.cartItems.findIndex(
-//     //   (item) => item.productId.toString() === productId
-//     // );
-//     const productIdObj = mongoose.Types.ObjectId.isValid(productId)
-//   ? new mongoose.Types.ObjectId(productId)
-//   : productId; // Use the correct format if valid
-
-// const itemIndex = user.cartItems.findIndex(
-//   (item) => item.productId.equals(productIdObj)
-// );
-// if (itemIndex !== -1) {
-//   user.cartItems[itemIndex].quantity += quantity;
-// } else {
-//   user.cartItems.push({ productId: productIdObj, quantity });
-// }
-
-    // if (itemIndex !== -1) {
-    //   user.cartItems[itemIndex].quantity = quantity;
-    // } else {
-    //   user.cartItems.push({ productId, quantity }); // ✅ Only add if it doesn’t exist
-    // }
-
-
-//     user.cartItems[itemIndex].quantity = quantity;
-
-//     await user.save();
-//     console.log("Cart updated successfully:", user.cartItems);
-
-//     res.status(200).json({
-//       message: "Cart item updated",
-//       cartItems: user.cartItems || [],
-//     });
-
-//   } catch (error) {
-//     console.error("Error updating cart item:", error);
-//     res.status(500).json({
-//       message: "Server error",
-//       error: error.message,
-//     });
-//   }
-// };
 
 
 const updateCartItems = async (req, res) => {
@@ -392,18 +273,17 @@ const updateCartItems = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // To make sure the product comparison works, use equals if possible,
-    // Otherwise, compare strings.
+   
     const productIdObj = mongoose.Types.ObjectId.isValid(productId)
       ? new mongoose.Types.ObjectId(productId)
       : productId;
       
     const itemIndex = user.cartItems.findIndex((item) => {
       if (item.productId && typeof item.productId.equals === "function") {
-        // Compare as ObjectId objects
+   
         return item.productId.equals(productIdObj);
       }
-      // Fallback: compare as strings
+ 
       return item.productId.toString() === productIdObj.toString();
     });
 
@@ -412,7 +292,7 @@ const updateCartItems = async (req, res) => {
     if (itemIndex !== -1) {
       user.cartItems[itemIndex].quantity = Number(quantity); // update quantity
     } else {
-      // Only add the item if not found; note that you may want to convert if needed.
+      
       user.cartItems.push({
         productId: productIdObj,
         quantity: Number(quantity),
@@ -435,7 +315,7 @@ const updateCartItems = async (req, res) => {
 };
 const fetchCart = async (req, res) => {
   console.log("fetch cart", req.body)
-  // console.log("fetch cart", cartItems)
+  
 
   const { userId } = req.params;
 

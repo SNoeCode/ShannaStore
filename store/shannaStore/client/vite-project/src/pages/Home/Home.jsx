@@ -58,12 +58,8 @@ try {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const username = localStorage.getItem("username");
-    
-    // ✅ Define `storedData` first
-    const storedData = localStorage.getItem("cartItems");
-    
-    // ✅ Ensure `parsedData` is initialized properly
-    let parsedData = [];
+      const storedData = localStorage.getItem("cartItems");
+       let parsedData = [];
     try {
       parsedData = storedData && storedData !== "undefined" ? JSON.parse(storedData) : [];
     } catch (error) {
@@ -91,57 +87,7 @@ useEffect(() => {
     });
 }, []);
 
-// const handleAddToCart = (product) => {
-//   const token = localStorage.getItem("token");
-//   if (!token) {
-//     alert("Please Login to add to cart");
-//     console.error("No token found. Please log in.");
-//     return;
-//   }
-  
-//   // Use the correct user ID (e.g., stored as "userId" in localStorage or in authedUser)
-//   const userId = localStorage.getItem("userId");
-//   if (!userId) {
-//     console.error("No user ID found. Please log in.");
-//     return;
-//   }
 
-//   // Create a new item object
-//   const newItem = {
-//     productId: Number(product.id),
-//     title: product.title,
-//     price: product.price,
-//     description: product.description,
-//     category: product.category,
-//     image: product.image,
-//     quantity: 1,
-//   };
-
-//   console.log("Request Data:", newItem);
-
-//   axios
-//     .post(`http://localhost:3004/api/${userId}/addToCart`, newItem, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       withCredentials: true,
-//     })
-//     .then((response) => {
-//       console.log("Backend addToCart response:", response.data);
-//       // Assume the response returns { cart: updatedCartItems }
-//       const updatedCartItems = response.data.cart || [];
-      
-//       // Dispatch one action to update the entire cart in your global state
-//       dispatch({ type: "UPDATE_CART", payload: { cartItems: updatedCartItems } });
-      
-//       // Save the updated cart to localStorage
-//       localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-//     })
-//     .catch((error) => {
-//       console.error("Error in addToCart:", error);
-//     });
-// };
 const handleAddToCart = (product) => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -149,14 +95,13 @@ const handleAddToCart = (product) => {
     console.error("No token found. Please log in.");
     return;
   }
-  // const userId = authedUser?.userId; 
-  // const userId = authedUser?.id; 
+
   const userId = localStorage.getItem("userId");
   if (!userId) {
     console.error("No user ID found. Please log in.");
     return;
   }
-  // const existingItem = cartItems.find((item) => item.productId === product.productId);
+ 
   const existingItem = cartItems.find((item) => item.productId === product.id);
   const newQuantity = existingItem ? existingItem.quantity + 1 : 1;
 
@@ -165,7 +110,7 @@ console.log("Existing item in cart:",existingItem ? existingItem.productId : "No
 
   const newItem = {
     // productId: Number(product.id),
-    // productId: product.id,
+
     productId: product.id.toString(),
     id: product.id,
     title: product.title,
@@ -187,20 +132,19 @@ console.log("Existing item in cart:",existingItem ? existingItem.productId : "No
       withCredentials: true,
     })
     .then((response) => {
-      // Assuming response.data.cart (or updatedCartItems) contains the updated cart items array
+   
       const updatedCartItems = response.data.cart || []; 
       
-      // Look for the item in the updated cart using newItem.productId
-      // const existingItem = updatedCartItems.find(item => item.productId === newItem.productId);
+   
       
       if (existingItem) {
-        // Now we can safely access existingItem.quantity
+      
         updateCartItemQuantity(newItem.productId, userId, existingItem.quantity + 1);
       } else {
         dispatch({ type: "ADD_ITEM", payload: newItem });
       }
     
-      // Update global cart state and localStorage with the updated cart
+     
       dispatch({ type: "UPDATE_CART", payload: { cartItems: updatedCartItems } });
       localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
     })
@@ -208,27 +152,6 @@ console.log("Existing item in cart:",existingItem ? existingItem.productId : "No
       console.error(error);
     });
 }
-    // .then((response) => {
-    //   setData(response.data);
-    //   // const existingItem = cartItems.find(item => item.productId === product.productId);
-    //   const updatedCartItems = response.data.cart || []; 
-    //   if ( updatedCartItems.length > 0) {
-    //     const existingItem = updatedCartItems.find(item => item.productId === product.productId);
-    //     updateCartItemQuantity(product.productId, authedUser.userId, existingItem.quantity + 1);
-    //   } else {
-    //     dispatch({ type: "ADD_ITEM", payload: product });
-    //   }
-    
-    
-    //   // dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems } });
-    //   // localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems));
-    //   dispatch({ type: "ADD_ITEM", payload: newItem });
-    //   dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.updatedCartItems } });
-    //   localStorage.setItem("cartItems", JSON.stringify(updatedCartItems));
-    // })
-    // .catch((error) => {
-    //   console.log(error);
-    // });
 
 
 

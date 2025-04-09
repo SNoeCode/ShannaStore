@@ -15,48 +15,48 @@ const Login = () => {
     username: "",
     password: "",
   });
- 
+
   // const [authedUser, setAuthedUser] = useState(null);
   const [userInputValue, setUserInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [cart, setCart] = useState({});
-  
 
 
-    let cartItems = [];
-    const storedCartItems = localStorage.getItem("cartItems");
-    if (!storedCartItems && storedCartItems == "undefined") {
-      try {
-        cartItems = JSON.parse(storedCartItems);
-        cartItems = Array.isArray(cartItems) ? cartItems : [];
 
-      } catch (error) {
-        console.error("Error parsing cartItems:", error);
-      }
+  let cartItems = [];
+  const storedCartItems = localStorage.getItem("cartItems");
+  if (!storedCartItems && storedCartItems == "undefined") {
+    try {
+      cartItems = JSON.parse(storedCartItems);
+      cartItems = Array.isArray(cartItems) ? cartItems : [];
+
+    } catch (error) {
+      console.error("Error parsing cartItems:", error);
     }
-    useEffect(() => {
-      if (authedUser?.user?.cartItems && state.cartItems.length === 0) {
-        console.log("Setting cart from login response:", authedUser.user.cartItems);
-        dispatch({
-          type: "UPDATE_CART",
-          payload: { cartItems: authedUser.user.cartItems },
-        });
-    
-        localStorage.setItem("cartItems", JSON.stringify(authedUser.user.cartItems));
-      }
-    }, [authedUser]);
-    
-    let wishlist = [];
-    const storedWishlist = localStorage.getItem("wishlist");
-    if (storedWishlist && storedWishlist !== "undefined") {
-      try {
-        wishlist = JSON.parse(storedWishlist);
-      } catch (error) {
-        console.error("Error parsing wishlist:", error);
-      }
+  }
+  useEffect(() => {
+    if (authedUser?.user?.cartItems && state.cartItems.length === 0) {
+      console.log("Setting cart from login response:", authedUser.user.cartItems);
+      dispatch({
+        type: "UPDATE_CART",
+        payload: { cartItems: authedUser.user.cartItems },
+      });
+
+      localStorage.setItem("cartItems", JSON.stringify(authedUser.user.cartItems));
     }
+  }, [authedUser]);
+
+  let wishlist = [];
+  const storedWishlist = localStorage.getItem("wishlist");
+  if (storedWishlist && storedWishlist !== "undefined") {
+    try {
+      wishlist = JSON.parse(storedWishlist);
+    } catch (error) {
+      console.error("Error parsing wishlist:", error);
+    }
+  }
 
 
   const handleLogin = async (e) => {
@@ -67,8 +67,8 @@ const Login = () => {
   const handleConfirm = async () => {
     const verificationCode = "just example";
     if (userInputValue !== verificationCode) return;
-  
-      
+
+
     setCredentials((prev) => {
       console.log("prev", prev);
       return {
@@ -91,46 +91,39 @@ const Login = () => {
 
       setCart(response.data.cartItems);
 
-  const userData = response.data.user;
-  setAuthedUser({
-    username: userData.username,
-    token: response.data.token || "",
-    id:userData._id,
-    role: userData.role,
-    userId: userData.userId,
-    cartItems: userData.cartItems,
-   productId: userData.productId
-  });
-  localStorage.setItem("username", userData.username);
-  localStorage.setItem("token", response.data.token || "");
-
-
- 
-    localStorage.setItem("userId", userData.userId);
-    // localStorage.setItem("username", user.username);
-    localStorage.setItem("id", userData._id);
-    localStorage.setItem("role", userData.role);
-    localStorage.setItem("cartItems", JSON.stringify(userData.cartItems || []));
-    localStorage.setItem("wishlist", JSON.stringify(userData.wislist || []));
-
-    // Update cart context
-    dispatch({ type: "UPDATE_CART", payload: { cartItems: userData.cartItems || [] } });
-    fetchCart(); // Fetch updated cart
-
-    alert("User Logged In");
-    navigate("/auth/account"); // Redirect after login
-
-  // } else {
-  //   setError("Login failed. Please check your credentials.");
-  
-} catch (error) {
-  console.error("Login error:", error);
-  setError("Login failed. Please check your credentials and try again.");
-}
-};
+      const userData = response.data.user;
+      setAuthedUser({
+        username: userData.username,
+        token: response.data.token || "",
+        id: userData._id,
+        role: userData.role,
+        userId: userData.userId,
+        cartItems: userData.cartItems,
+        productId: userData.productId
+      });
+      localStorage.setItem("username", userData.username);
+      localStorage.setItem("token", response.data.token || "");
 
 
 
+      localStorage.setItem("userId", userData.userId);
+      // localStorage.setItem("username", user.username);
+      localStorage.setItem("id", userData._id);
+      localStorage.setItem("role", userData.role);
+      localStorage.setItem("cartItems", JSON.stringify(userData.cartItems || []));
+      localStorage.setItem("wishlist", JSON.stringify(userData.wislist || []));
+
+
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: userData.cartItems || [] } });
+      fetchCart();
+      alert("User Logged In");
+      navigate("/auth/account");
+
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Login failed. Please check your credentials and try again.");
+    }
+  };
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setUserInputValue("");
@@ -188,12 +181,12 @@ const Login = () => {
                 <span>Sign up?</span>
               </a>
             </p>
-           
+
             <div>
               <button type="button">Sign in with Google</button>
             </div>
           </form>
-     
+
         </div>
         {isModalOpen && (
           <div className="user-modal">
@@ -227,11 +220,11 @@ const Login = () => {
                 </button>
               </div>
             </div>
-          
+
           </div>
         )}
         <div>
-      
+
         </div>
       </div>
     </>

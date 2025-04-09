@@ -15,19 +15,7 @@ export const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
   const { setAuthedUser, authedUser } = useContext(UserContext);
   const [cartTotal, setCartTotal] = useState(0)
-  // ✅ Define initialState before useReducer
-  // const initialState = {
-  //   userId: authedUser?.userId || null,
-  //   cartItems: [],
-  //   isCartOpen: false,
-  //   loading: false,
 
-  // };
-
-  // useEffect(() => {
-  //   setCartTotal(calculateTotal(state.cartItems));
-  // }, [state.cartItems]);
-  
   let savedCartItems = [];
   try {
     const raw = localStorage.getItem("cartItems");
@@ -47,12 +35,6 @@ export const CartProvider = ({ children }) => {
 
 
 
-  // const initialState = {
-  //   isCartOpen: false,
-  //   cartItems: JSON.parse(localStorage.getItem("cartItems")) || [],
-  //   loading: false,
-  //   error: null,
-  // };
   const [state, dispatch] = useReducer(cartReducer, initialState);
   useEffect(() => {
     setCartTotal(calculateTotal(state.cartItems)); // Now state is initialized before useEffect runs
@@ -88,7 +70,7 @@ export const CartProvider = ({ children }) => {
       },
     });
   };
-  // ✅ Fetch cart items from backend
+ 
   const fetchCart = async (userId,quantity) => {
     if (!userId) return;
 
@@ -152,7 +134,7 @@ console.log("Sending request to backend...", { userId, quantity });
   const handleIncrement = (productId) => {
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
-      incrementItem(productId); // this already updates it
+      incrementItem(productId);
     }
   };
 
@@ -216,9 +198,7 @@ const updateCartItemQuantity = async (productId, userId, quantity) => {
   const decrementItem = (id) => {
     dispatch({ type: "DECREMENT", payload: id });
   };
-  // const calculateTotal = () => {
-  //   return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
-  // };
+
   const calculateTotal = () => {
     return state.cartItems
       .reduce((total, item) => total + item.price * item.quantity, 0)

@@ -16,7 +16,7 @@ const adminAuth = (req, res, next) => {
   const adminToken = req.cookies.adminToken || req.cookies.admintoken || 
   (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-console.log("Received token in middleware:", adminToken); // Debugging
+console.log("Received token in middleware:", adminToken); 
 
 if (!adminToken) {
   return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -24,10 +24,10 @@ if (!adminToken) {
 
   try {
     const adminDecoded = jwt.verify(adminToken, process.env.ADMIN_KEY);
-    req.admin = adminDecoded; // Attach admin info to request
+    req.admin = adminDecoded; 
       console.log("Admin authenticated:", adminDecoded);
 
-      next(); // ✅ Pass execution to the next middleware
+      next();
     } catch (err) {
       console.error("Token verification failed:", err);
       return res.status(401).json({ message: "Unauthorized: Invalid token" });

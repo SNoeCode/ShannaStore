@@ -23,7 +23,7 @@ const userId = localStorage.getItem("userId");
   useEffect(() => {
     if (authedUser) {
       console.log("Fetching cart for user:", authedUser.user);
-      // fetchCart(authedUser?._id, authedUser.token);
+      
       fetchCart(authedUser?.userId, authedUser.token);
 
     }
@@ -51,12 +51,12 @@ const userId = localStorage.getItem("userId");
     if (currentItem) {
       try {
         if (currentItem.quantity > 1) {
-          // await updateCartItemQuantity(productId, authedUser?.userId, currentItem.quantity - 1);
+         
           await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity - 1);
         } else {
           await handleRemove(productId);
         }
-        // The updated cart state is handled by the updateCartItemQuantity function
+      
       } catch (error) {
         console.error("Error decrementing item quantity:", error);
       }
@@ -110,11 +110,7 @@ const calculateTotal = () => {
             cartItems.map((item) => (
               <div key={item.productId} className="shopping-cart">
                 <div className="cart-item">
-                  {/* <img
-                    src={item?.image}
-                    alt={item.title}
-                    className="cart-item-img"
-                  /> */}
+                
                   <img src={item?.image} alt={item.title} className="cart-item-img" />
 
                   <div className="cart-item-details">
@@ -144,12 +140,7 @@ const calculateTotal = () => {
                       >
                     -
                     </button>
-                     {/* <button
-                    className="remove-btn"
-                    onClick={() => handleRemove(item.productId)}
-                    >
-                    Remove
-                    </button> */}
+                 
                   </div>
                     </span>
 

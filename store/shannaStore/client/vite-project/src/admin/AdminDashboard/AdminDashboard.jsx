@@ -4,7 +4,7 @@ const AdminDashboard = () => {
   const [data, setData] = useState({ orders: [], payments: [], customers: [], inventory: [] });
 
   useEffect(() => {
-    // Simulating API calls for admin dashboard stats
+  
     Promise.all([
       fetch("/api/orders").then(res => res.json()),
       fetch("/api/payments").then(res => res.json()),

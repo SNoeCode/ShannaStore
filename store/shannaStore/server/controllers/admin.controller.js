@@ -69,13 +69,7 @@ const adminLogout = async (req, res) => {
     console.log("Cookies received in logout:", req.cookies);
 
     try {
-    //   const adminToken = req.cookies.adminToken;
-    //   if (!adminToken) {
-    //     return res
-    //       .status(401)
-    //       .json({ message: "Unauthorized: No token provided" });
-    //   }
-
+   
     const adminToken = req.cookies.adminToken || req.cookies.admintoken;
     if (!adminToken) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
