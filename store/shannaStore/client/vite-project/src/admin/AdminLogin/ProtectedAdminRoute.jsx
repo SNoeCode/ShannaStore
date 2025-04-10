@@ -24,7 +24,7 @@ const response =
           .then((response) => {
     console.log("adminLogin", response.data)
       if (response.data.message === "validated") {
-          // console.log("adminDMINLogin", response.data.admin);
+          
           console.log("adminDMINLogin", response.data.adminDecoded);
           setUserAdmin({
             adminId: response.data.adminDecoded.adminId,
@@ -33,11 +33,7 @@ const response =
           });
   
 
-          // setUserAdmin({
-          //     adminId: response.data.adminId,
-          //     adminUsername: response.data.adminUsername,
-          //     adminToken: response.data.adminToken,
-          // });
+         
 
       } else {
           console.log("Invalid token, redirecting...");

@@ -1,15 +1,41 @@
-.admin-dashboard {
+body {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  /* margin-top: 250px; */
+    width: 100%;
+    background-color: aquamarine;
+  }
+
+.admin-dashboard-container {
     font-family: Arial, sans-serif;
-    margin-top: 200px;
+    margin-top: 250px;
     max-width: 900px;
     margin: auto;
     padding: 20px;
     background-color: violet;
     background: #f8f9fa;
     border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
+.admin-dashboard {
+    margin-top: 150px;
+ text-align: center;
+ 
 
+ margin-bottom: 50px;
+
+}
+.admin-dashboard-buttons  {
+ background-color: chartreuse;
+ text-align: center;
+ display: flex;
+ float: right;
+ align-items: end;
+}
 h1 {
     text-align: center;
     color: #333;

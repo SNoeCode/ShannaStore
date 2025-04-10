@@ -15,7 +15,8 @@ export const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
   const { setAuthedUser, authedUser } = useContext(UserContext);
   const [cartTotal, setCartTotal] = useState(0)
-
+ 
+  const userId = authedUser?.userId || localStorage.getItem("userId");
   let savedCartItems = [];
   try {
     const raw = localStorage.getItem("cartItems");
@@ -25,6 +26,8 @@ export const CartProvider = ({ children }) => {
   } catch (e) {
     console.error("Failed to parse cartItems from localStorage:", e);
   }
+ 
+  
   
   const initialState = {
     isCartOpen: false,
@@ -37,19 +40,52 @@ export const CartProvider = ({ children }) => {
 
   const [state, dispatch] = useReducer(cartReducer, initialState);
   useEffect(() => {
-    setCartTotal(calculateTotal(state.cartItems)); // Now state is initialized before useEffect runs
+    setCartTotal(calculateTotal(state.cartItems));
+  }, [state.cartItems]);
+  useEffect(() => {
+    try {
+      if (Array.isArray(state.cartItems) && state.cartItems.length > 0) {
+        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+      }
+    } catch (error) {
+      console.error("Failed to save cartItems to localStorage:", error);
+    }
   }, [state.cartItems]);
   
   const cartQuantity = Array.isArray(state.cartItems)
     ? state.cartItems.reduce((total, item) => total + (item.quantity || 0), 0)
     : 0;
     useEffect(() => {
+   
+  
+    let savedCartItems = [];
+    try {
+      const raw = localStorage.getItem("cartItems");
+      if (raw && raw !== "undefined") {
+        savedCartItems = JSON.parse(raw);
+      }
+    } catch (e) {
+      console.error("Failed to parse cartItems from localStorage:", e);
+      localStorage.removeItem("cartItems"); // Clear corrupted storage
+    }
+      let parsedCart = [];
+  
+    if (savedCartItems && savedCartItems !== "undefined") {
+      try {
+        parsedCart = JSON.parse(savedCartItems);
+        dispatch({ type: "UPDATE_CART", payload: { cartItems: parsedCart } });
+      } catch (e) {
+        console.error("Failed to parse cartItems:", e);
+      }
+    }
+  }, []);
+    useEffect(() => {
       const storedUser = JSON.parse(localStorage.getItem("authedUser"));
       if (storedUser) {
         setAuthedUser(storedUser);
       }
     }, []);
-    
+  
     useEffect(() => {
       const savedCartItems = localStorage.getItem("cartItems");
       if (savedCartItems && savedCartItems !== "undefined") {
@@ -71,19 +107,30 @@ export const CartProvider = ({ children }) => {
     });
   };
  
-  const fetchCart = async (userId,quantity) => {
-    if (!userId) return;
+  const fetchCart = async () => {
+    const token = authedUser?.token || localStorage.getItem("token");
+  
+  let userId = authedUser?.userId || localStorage.getItem("userId");
+
+  
+   
+    if (!userId) {
+      console.error("Invalid userId:", userId);
+      return;
+    }
 
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const response = await axios.get(
         `http://localhost:3004/api/cart/${userId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
           withCredentials: true,
-        }
+      }
       );
-console.log("Sending request to backend...", { userId, quantity });
+console.log("Sending request to backend...", { userId });
 
       dispatch({
         type: "UPDATE_CART",
@@ -149,33 +196,43 @@ console.log("Sending request to backend...", { userId, quantity });
   
 
 
-const updateCartItemQuantity = async (productId, userId, quantity) => {
+const updateCartItemQuantity = async (productId, quantity) => {
+  if (!productId || isNaN(quantity) || quantity <= 0) {
+    console.error("Invalid quantity:", quantity);
+    return;
+}
+
+  
   const token = authedUser?.token || localStorage.getItem("token");
   console.log("User ID before making request:", userId);
+  
 
   if (!userId || typeof userId !== "string" || userId.length !== 24) {
     console.error("Invalid userId:", userId);
     return;
   }
+  const cleanedUserId = typeof userId === "string" ? userId : String(userId);
   console.log("Sending request to backend...", { productId, userId, quantity });
+
   try {
-    if (quantity <= 0) {
+    if (quantity <= 1) {
       try {
-        await removeCartItem(productId, userId);
+        await removeCartItem(productId,quantity);
       } catch (err) {
         console.error("Error removing cart item:", err);
       }
       return;
     }
     const response = await axios.put(
-      `http://localhost:3004/api/cart/update/${userId}`,
-      { productId, quantity, userId },
+      `http://localhost:3004/api/cart/update/${cleanedUserId}`,
+      { productId, quantity},
       { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
     );
+    console.log("PUT URL:", `http://localhost:3004/api/cart/update/${cleanedUserId}`);
     console.log("Backend response:", response.data);
     dispatch({
       type: "UPDATE_CART",
-      payload: { cartItems: response.data.cartItems },
+      payload: { cartItems: response.data.cartItems, quantity },
     });
     localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems || []));
   } catch (error) {
@@ -188,7 +245,6 @@ const updateCartItemQuantity = async (productId, userId, quantity) => {
     dispatch({ type: "TOGGLE_CART" });
   };
 
-  // ✅ Clear cart
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
   };
@@ -224,9 +280,8 @@ const updateCartItemQuantity = async (productId, userId, quantity) => {
         toggleCart,
         fetchCart,
         dispatch,
-        // calculateTotal: state.calculateTotal,
-        // cartTotal
-        cartTotal, // ✅ Ensure this is passed
+     
+        cartTotal,
         calculateTotal,
       }}
     >

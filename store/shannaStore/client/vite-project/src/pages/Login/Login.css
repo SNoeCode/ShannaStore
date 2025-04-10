@@ -4,6 +4,7 @@ body {
     box-sizing: border-box;
     /* width: 100%; */
     overflow-x: hidden;
+    margin-top:150px;
   }
   .user-image-container {
     width: 100vw;
