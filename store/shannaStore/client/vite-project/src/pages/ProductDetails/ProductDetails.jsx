@@ -16,7 +16,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const { id } = useParams();
-  // const {addItem} = useContext(CartContext)
+
  
 
  

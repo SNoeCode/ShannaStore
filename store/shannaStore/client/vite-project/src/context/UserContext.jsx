@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
 
 
   const initialUser = {
-
+userId:  localStorage.getItem("userId") || "",
     username: localStorage.getItem("username") || "",
     token: localStorage.getItem("token") || null,
   };
@@ -18,12 +18,14 @@ export const UserProvider = ({ children }) => {
     const storedUsername = localStorage.getItem("username") || "";
     const storedToken = localStorage.getItem("token") || null;
     const storedUserId = localStorage.getItem("userId") || null;
+   
+  
     const storedId = localStorage.getItem("id") || null;
     const storedRole = localStorage.getItem("role") || null;
 
     const storedCartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
 
-    //updates states with loccal storafw
+
     setAuthedUser({
       username: storedUsername,
       token: storedToken,

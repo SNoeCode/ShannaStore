@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
       image: {
         type: String
       },
-    
+
       productId: { type: String, required: true },
       quantity: { type: Number, default: 1 },
       default: []
@@ -53,7 +53,12 @@ const UserSchema = new mongoose.Schema({
       default: [],
     },
   ],
-
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
+    default: () => new mongoose.Types.ObjectId(),
+    unique: true,
+  }
 });
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

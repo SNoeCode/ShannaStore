@@ -25,15 +25,15 @@ useEffect(() => {
       if (res.data.msg === "valid token") {
         // Preserve cart items by merging existing ones if cart is empty
         const storedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
-        const newCartItems = res.data.cartItems && res.data.cartItems.length > 0 
-          ? res.data.cartItems 
+        const newCartItems = res.data.user?.cartItems && res.data.user?.cartItems.length > 0 
+          ? res.data.user?.cartItems 
           : storedCart;
 
         setAuthedUser({
-          username: res.data.username,
-          userId: res.data.userId,
-          token: res.data.token,
-          id: res.data._id,
+          username: res.data.user?.username,
+          userId: res.data.user?.userId,
+          token: res.data.user?.token,
+          id: res.data.user?._id,
           cartItems: newCartItems,
         });
 
@@ -42,6 +42,10 @@ useEffect(() => {
           payload: { cartItems: newCartItems },
         });
 
+        if (res.data.user?.userId) {
+          localStorage.setItem("userId", res.data.user?.userId); // Store the user ID properly
+        }
+        
         localStorage.setItem("cartItems", JSON.stringify(newCartItems));
         console.log("Authenticated user:", res.data);
       } else {

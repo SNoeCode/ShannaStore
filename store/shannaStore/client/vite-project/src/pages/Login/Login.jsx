@@ -16,7 +16,7 @@ const Login = () => {
     password: "",
   });
 
-  // const [authedUser, setAuthedUser] = useState(null);
+  
   const [userInputValue, setUserInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState("");
@@ -84,40 +84,37 @@ const Login = () => {
         credentials, {
         headers: {
           "Content-Type": "application/json",
-        },
-        withCredentials: true,
+        }
       });
 
 
       setCart(response.data.cartItems);
-
-      const userData = response.data.user;
-      setAuthedUser({
-        username: userData.username,
-        token: response.data.token || "",
-        id: userData._id,
-        role: userData.role,
-        userId: userData.userId,
-        cartItems: userData.cartItems,
-        productId: userData.productId
-      });
-      localStorage.setItem("username", userData.username);
-      localStorage.setItem("token", response.data.token || "");
+      if (response.data.user?.userId) {
+        localStorage.setItem("userId", response.data.user.userId);
+     
+        localStorage.setItem("username", response.data.user?.username);
+      
+        localStorage.setItem("token", response.data.token || "");
 
 
 
-      localStorage.setItem("userId", userData.userId);
-      // localStorage.setItem("username", user.username);
-      localStorage.setItem("id", userData._id);
-      localStorage.setItem("role", userData.role);
-      localStorage.setItem("cartItems", JSON.stringify(userData.cartItems || []));
-      localStorage.setItem("wishlist", JSON.stringify(userData.wislist || []));
 
+       
+        localStorage.setItem("id", response.data._id);
+        localStorage.setItem("role", response.data.role);
+        localStorage.setItem("cartItems", JSON.stringify(response.data.cartItems || []));
+        localStorage.setItem("wishlist", JSON.stringify(response.data.wislist || []));
 
-      dispatch({ type: "UPDATE_CART", payload: { cartItems: userData.cartItems || [] } });
+      }
+
+    
+
+      dispatch({ type: "UPDATE_CART", payload: { cartItems: response.data.cartItems || [] } });
       fetchCart();
       alert("User Logged In");
+   
       navigate("/auth/account");
+
 
     } catch (error) {
       console.error("Login error:", error);
@@ -182,9 +179,7 @@ const Login = () => {
               </a>
             </p>
 
-            <div>
-              <button type="button">Sign in with Google</button>
-            </div>
+        
           </form>
 
         </div>

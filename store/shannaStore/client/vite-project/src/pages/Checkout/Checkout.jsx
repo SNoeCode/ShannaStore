@@ -1,16 +1,9 @@
 import React, { useEffect, useContext, useState } from "react";
-// import { CheckoutContext } from "../../context/CheckoutContext";
-// import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
-// import { CheckoutProvider } from "../../context/CheckoutContext";
-// import CheckoutForm from "./CheckoutForm";
 
 import "./Checkout.css";
 import { CartContext } from '../../context/cartContext'
 
 const Checkout = () => {
-  // const stripe = useStripe();
-  // const elements = useElements();
-
 
 
 
@@ -140,41 +133,7 @@ const Checkout = () => {
           required
         />
 
-        {/* Payment Information */}
-        {/* <h3 className="form-section-header">Payment Information</h3>
-        <input
-          className="form-input"
-          type="text"
-          name="creditCard"
-          placeholder="Credit Card Number"
-          value={creditCard}
-          onChange={(e) => setCreditCard(e.target.value)}
-          required
-        /> */}
-        {/* <input
-          className="form-input"
-          type="text"
-          name="expiration"
-          placeholder="Expiration Date (MM/YY)"
-          value={expiration}
-          onChange={(e) => setExpiration(e.target.value)}
-          required
-        /> */}
-        {/* <select
-          className="form-select"
-          name="paymentMethod"
-          value={paymentMethod}
-          onChange={(e) => handlePaymentChange(e)}
-          required
-        >
-          <option value="">Select Payment Method</option>
-          <option value="credit">Credit Card</option>
-          <option value="paypal">PayPal</option>
-        </select> */}
-        {/* </form>
-  <button className="form-button" type="submit">
-  Place Order
-  </button> */}
+       
       </form>
     </div>
   );

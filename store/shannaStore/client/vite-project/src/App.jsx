@@ -23,7 +23,7 @@ import Payment from "./components/Payment/Payment";
 import ProtectedAdminRoute from './admin/AdminLogin/ProtectedAdminRoute';
 import AdminLogin from "./admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard/AdminDashboard";
-
+import Customers from './admin/Customers/Customers'
 const App = () => {
   const [username, setUsername] = useState(null);
   const [authedUser, setAuthedUser] = useState(null);
@@ -44,7 +44,15 @@ const App = () => {
 
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin/*" element={<ProtectedAdminRoute />}>
-          <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          {/* <Route path="admin/dashboard/customer" element={<Customers />} /> */}
+          <Route path="customer/" element={<Customers />} />
+
+        {/* <Route path="/admin/*" element={<ProtectedAdminRoute />}> */}
+        {/* </Route> */}
+
+
+
         </Route>
 
 

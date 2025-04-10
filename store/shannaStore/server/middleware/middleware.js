@@ -30,7 +30,7 @@ const MiddleWare = (req, res, next) => {
 
 const auth = (req, res, next) => {
   const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
-
+  console.log("Auth middleware – req.params before:", req.params);
   if (!token) {
     return res.status(401).json({ msg: "Unauthorized: No token provided" });
   }
@@ -39,6 +39,7 @@ const auth = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
     req.user = decoded; 
     next(); 
+    // console.log("Actual Middleware Auth middleware – req.params before:", req.params);
   } catch (err) {
     console.error("Token verification failed:", err);
     return res.status(401).json({ msg: "Unauthorized: Invalid token" });

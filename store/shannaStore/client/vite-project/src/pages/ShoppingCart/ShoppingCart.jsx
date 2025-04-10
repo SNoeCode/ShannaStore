@@ -35,10 +35,12 @@ const userId = localStorage.getItem("userId");
 
 
   const handleIncrement = async (productId) => {
+   
     const currentItem = cartItems.find((item) => item.productId === productId);
     if (currentItem) {
       try {
-        await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity + 1);
+        await updateCartItemQuantity(productId, currentItem.quantity + 1);
+        localStorage.setItem("cartItems", JSON.stringify(cartItems || []));
       } catch (error) {
         console.error("Error incrementing item quantity:", error);
       }
@@ -52,7 +54,8 @@ const userId = localStorage.getItem("userId");
       try {
         if (currentItem.quantity > 1) {
          
-          await updateCartItemQuantity(productId, authedUser?.userId || localStorage.getItem("userId"), currentItem.quantity - 1);
+          await updateCartItemQuantity(productId, currentItem.quantity - 1);
+          localStorage.setItem("cartItems", JSON.stringify(cartItems || []));
         } else {
           await handleRemove(productId);
         }
